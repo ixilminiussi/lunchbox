@@ -30,14 +30,20 @@ const (
 )
 
 type model struct {
-	State   *state
-	Dialogs dialogs
-	Width   int
-	Height  int
+	State      *state
+	Dialogs    dialogs
+	RecipeCard recipeCard
+	Width      int
+	Height     int
 }
 
 func (m model) Init() tea.Cmd {
-	return m.Dialogs.Init()
+	var cmds []tea.Cmd
+
+	cmds = append(cmds, m.Dialogs.Init())
+	cmds = append(cmds, m.RecipeCard.Init())
+
+	return tea.Batch(cmds...)
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -61,8 +67,15 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	_, cmd := m.Dialogs.Update(msg)
 	cmds = append(cmds, cmd)
 
-	if *m.State == Quit {
+	switch *m.State {
+	case Quit:
 		cmds = append(cmds, goodbye(&m))
+	case New:
+		_, cmd = m.RecipeCard.Update(m.Dialogs.GetRecipe())
+		cmds = append(cmds, cmd)
+	}
+
+	if *m.State == Quit {
 	}
 
 	return m, tea.Batch(cmds...)
@@ -73,10 +86,17 @@ func (m model) View() string {
 		return "Loading..."
 	}
 
-	if *m.State == Quit {
+	switch *m.State {
+	case Quit:
 		return ""
+	case Home:
+		return m.Dialogs.View()
+	case New:
+		return lipgloss.JoinHorizontal(lipgloss.Top,
+			m.Dialogs.View(),
+			m.RecipeCard.View(),
+		)
 	}
-
 	return m.Dialogs.View()
 }
 
@@ -93,6 +113,7 @@ func NewModel() model {
 	s := Home
 	m.State = &s
 	m.Dialogs = NewDialogs(m.State)
+	m.RecipeCard = NewRecipeCard()
 
 	return m
 }

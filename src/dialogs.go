@@ -1,6 +1,9 @@
 package main
 
 import (
+	"regexp"
+	"strconv"
+
 	tea "github.com/charmbracelet/bubbletea"
 	huh "github.com/charmbracelet/huh"
 )
@@ -86,7 +89,8 @@ func NewDialogs(s *state) dialogs {
 			huh.NewInput().
 				Key("name").
 				Title("Name").
-				Prompt("? "),
+				Prompt("? ").
+				Placeholder(""),
 
 			huh.NewText().
 				Key("description").
@@ -95,12 +99,14 @@ func NewDialogs(s *state) dialogs {
 			huh.NewInput().
 				Key("portions").
 				Title("Portions").
-				Prompt("? "),
+				Prompt("? ").
+				Validate(isInt),
 
 			huh.NewInput().
 				Key("time").
 				Title("Time").
-				Prompt("min "),
+				Prompt("min ").
+				Validate(isInt),
 		),
 		huh.NewGroup(
 			huh.NewText().
@@ -116,4 +122,37 @@ func NewDialogs(s *state) dialogs {
 	)
 
 	return d
+}
+
+func ParseIngredients(str string) ([]ingredient, error) {
+	var ingredients []ingredient
+
+	regex := regexp.MustCompile("([0-9]*\\.?[0-9]+)([a-z]*) ([a-z ]+)")
+	matches := regex.FindAllStringSubmatch(str, -1)
+
+	for _, match := range matches {
+		quant, err := strconv.ParseFloat(match[1], 32)
+		if err != nil {
+			return nil, err
+		}
+
+		ingredients = append(ingredients, ingredient{
+			Quantity: float32(quant),
+			Unit:     match[2],
+			Name:     match[3],
+		})
+	}
+
+	return ingredients, nil
+}
+
+func (d dialogs) GetRecipe() recipe {
+	var r recipe
+
+	r.Name = d.Forms[New].GetString("name")
+	r.Description = d.Forms[New].GetString("description")
+	r.Portions, _ = strconv.Atoi(d.Forms[New].GetString("portions"))
+	r.Time, _ = strconv.Atoi(d.Forms[New].GetString("time"))
+	r.Ingredients, _ = ParseIngredients(d.Forms[New].GetString("ingredients"))
+	return r
 }
