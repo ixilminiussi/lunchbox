@@ -719,15 +719,12 @@ main.container {
 .feed-card {
   flex: 0 0 220px;
   scroll-snap-align: start;
-  border: 1px solid var(--color-border);
-  overflow: hidden;
-  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
-}
-.feed-card:hover {
-  border-color: var(--color-text-light);
   text-decoration: none;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  color: inherit;
+}
+.feed-card .recipe-card-image,
+.feed-card .no-image {
+  aspect-ratio: 4 / 3;
 }
 .feed-row > .feed-card {
   animation: cardIn 0.25s ease-out both;
@@ -740,28 +737,6 @@ main.container {
 .feed-row > .feed-card:nth-child(6) { animation-delay: 0.20s; }
 .feed-row > .feed-card:nth-child(7) { animation-delay: 0.24s; }
 .feed-row > .feed-card:nth-child(8) { animation-delay: 0.28s; }
-.feed-card__image {
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  background: var(--color-border);
-}
-.feed-card__no-image {
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  background: var(--color-border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  color: var(--color-text-light);
-}
-.feed-card__body {
-  padding: 0.6rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-}
 
 /* Login Page */
 .login-row {

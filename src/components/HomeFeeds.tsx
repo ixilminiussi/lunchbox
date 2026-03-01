@@ -45,13 +45,13 @@ function authorClass(addedBy: string): string {
 function RecipeCard({ r }: { r: RecipeData }) {
   return (
     <a href={`/recipes/${r.id}`} class="feed-card" style="text-decoration: none; color: inherit;">
-      <article>
+      <article class="recipe-card">
         {r.image ? (
-          <img class="feed-card__image" src={r.image} alt={r.title} loading="lazy" />
+          <img class="recipe-card-image" src={r.image} alt={r.title} loading="lazy" />
         ) : (
-          <div class="feed-card__no-image">🍽</div>
+          <div class="no-image">🍽</div>
         )}
-        <div class="feed-card__body">
+        <div class="recipe-card-body">
           <h3 class="recipe-card-title">{r.title}</h3>
           <div class="recipe-card-meta">
             <span>Prep {r.prep_time}</span>
