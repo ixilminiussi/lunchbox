@@ -152,7 +152,7 @@ main.container {
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 1px;
   border: 1px solid var(--color-border);
-  padding: 1.5rem 0;
+  padding: 4px 0 1.5rem;
   border: none;
   gap: 1rem;
 }
@@ -705,8 +705,9 @@ main.container {
   display: flex;
   gap: 1rem;
   overflow-x: auto;
+  overflow-y: visible;
   scroll-snap-type: x mandatory;
-  padding-bottom: 0.5rem;
+  padding: 4px 0 0.5rem;
   -webkit-overflow-scrolling: touch;
 }
 .feed-row::-webkit-scrollbar {
