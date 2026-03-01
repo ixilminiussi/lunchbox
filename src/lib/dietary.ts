@@ -13,8 +13,9 @@ const sortedKeys = Object.keys(db).sort((a, b) => b.length - a.length);
 export function normalise(line: string): string {
   return line
     .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // strip accents: é→e, à→a, etc.
     .replace(/[\d.,/½⅓¼¾⅔⅛]+/g, '')       // strip numbers & fractions
-    .replace(/\b(g|kg|ml|l|oz|lb|tsp|tbsp|cup|cups|tablespoon|teaspoon|bunch|clove|cloves|pinch|handful|slice|slices|piece|pieces|large|small|medium|fresh|dried|ground|whole|finely|roughly|chopped|diced|minced|grated|sliced|to taste|optional)\b/g, '')
+    .replace(/\b(g|kg|ml|l|cl|dl|oz|lb|tsp|tbsp|cup|cups|tablespoon|teaspoon|bunch|clove|cloves|pinch|handful|slice|slices|piece|pieces|large|small|medium|fresh|dried|ground|whole|finely|roughly|chopped|diced|minced|grated|sliced|to taste|optional|c a s|c a c|cuil a soupe|cuil a cafe|gousse|gousses|pincee|poignee|tranche|tranches|morceau|morceaux|botte|brin|brins|gros|petit|moyen|frais|fraiche|seche|sechee|moulu|entier|entiere|finement|grossierement|hache|emince|rape|coupe|fondu|cuit|cuite|un peu)\b/g, '')
     .replace(/[^a-z\s-]/g, '')
     .replace(/\s+/g, ' ')
     .trim();
