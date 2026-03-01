@@ -420,6 +420,7 @@ main.container {
 .filter-bar button:hover {
   border-color: var(--color-text);
   color: var(--color-text);
+  transform: translateY(-1px);
 }
 .filter-bar button:active {
   transform: scale(0.97);
@@ -450,6 +451,7 @@ main.container {
 .tag-chip:hover {
   border-color: var(--color-text);
   color: var(--color-text);
+  transform: translateY(-1px);
 }
 .tag-chip-active {
   border-color: var(--color-accent);
@@ -536,6 +538,7 @@ main.container {
 }
 .servings-btn:hover {
   border-color: var(--color-text);
+  transform: translateY(-1px);
 }
 .servings-count {
   font-size: 0.9rem;
@@ -564,6 +567,7 @@ main.container {
 .fridge-toggle:hover {
   border-color: var(--color-text);
   color: var(--color-text);
+  transform: translateY(-1px);
 }
 .fridge-toggle-active {
   border-color: var(--color-accent);
@@ -596,6 +600,7 @@ main.container {
 }
 .ingredient-chip:hover {
   border-color: var(--color-text);
+  transform: translateY(-1px);
 }
 .ingredient-chip-active {
   border-color: var(--color-accent);
@@ -772,6 +777,11 @@ main.container {
   flex-direction: column;
   gap: 0.75rem;
   min-width: 200px;
+  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+.login-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 .login-card h2 {
   font-size: 1rem;
@@ -872,6 +882,7 @@ main.container {
 .manage-btn:hover {
   border-color: var(--color-text);
   text-decoration: none;
+  transform: translateY(-1px);
 }
 .manage-btn:disabled {
   opacity: 0.5;
