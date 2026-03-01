@@ -38,6 +38,20 @@
   --color-danger: #f38ba8;
 }
 
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -78,6 +92,9 @@ img {
   margin: 0 auto;
   padding: 0 1rem;
 }
+main.container {
+  animation: fadeIn 0.3s ease-out;
+}
 
 /* Nav */
 .nav {
@@ -109,10 +126,24 @@ img {
 }
 .nav-links a {
   color: var(--color-text-light);
+  position: relative;
+}
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--color-text);
+  transition: width 0.2s ease;
 }
 .nav-links a:hover {
   color: var(--color-text);
   text-decoration: none;
+}
+.nav-links a:hover::after {
+  width: 100%;
 }
 
 /* Recipe Grid */
@@ -132,11 +163,24 @@ img {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
 }
 .recipe-card:hover {
   border-color: var(--color-text-light);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
+.recipe-grid > .recipe-card {
+  animation: cardIn 0.25s ease-out both;
+}
+.recipe-grid > .recipe-card:nth-child(1) { animation-delay: 0s; }
+.recipe-grid > .recipe-card:nth-child(2) { animation-delay: 0.04s; }
+.recipe-grid > .recipe-card:nth-child(3) { animation-delay: 0.08s; }
+.recipe-grid > .recipe-card:nth-child(4) { animation-delay: 0.12s; }
+.recipe-grid > .recipe-card:nth-child(5) { animation-delay: 0.16s; }
+.recipe-grid > .recipe-card:nth-child(6) { animation-delay: 0.20s; }
+.recipe-grid > .recipe-card:nth-child(7) { animation-delay: 0.24s; }
+.recipe-grid > .recipe-card:nth-child(8) { animation-delay: 0.28s; }
 .recipe-card a {
   color: inherit;
   text-decoration: none;
@@ -344,6 +388,7 @@ img {
 }
 .search-input:focus {
   border-color: var(--color-text);
+  box-shadow: 0 1px 0 0 var(--color-accent);
 }
 
 /* Filter page */
@@ -370,10 +415,14 @@ img {
 .filter-bar button {
   border-color: var(--color-text-light);
   color: var(--color-text-light);
+  transition: border-color 0.15s, color 0.15s, transform 0.1s;
 }
 .filter-bar button:hover {
   border-color: var(--color-text);
   color: var(--color-text);
+}
+.filter-bar button:active {
+  transform: scale(0.97);
 }
 
 
@@ -393,7 +442,10 @@ img {
   background: transparent;
   color: var(--color-text-light);
   cursor: pointer;
-  transition: border-color 0.15s, color 0.15s;
+  transition: border-color 0.15s, color 0.15s, transform 0.1s;
+}
+.tag-chip:active {
+  transform: scale(0.97);
 }
 .tag-chip:hover {
   border-color: var(--color-text);
@@ -477,7 +529,10 @@ img {
   align-items: center;
   justify-content: center;
   line-height: 1;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, transform 0.1s;
+}
+.servings-btn:active {
+  transform: scale(0.97);
 }
 .servings-btn:hover {
   border-color: var(--color-text);
@@ -501,7 +556,10 @@ img {
   font-family: inherit;
   font-size: 0.8rem;
   cursor: pointer;
-  transition: border-color 0.15s, color 0.15s;
+  transition: border-color 0.15s, color 0.15s, transform 0.1s;
+}
+.fridge-toggle:active {
+  transform: scale(0.97);
 }
 .fridge-toggle:hover {
   border-color: var(--color-text);
@@ -531,7 +589,10 @@ img {
   background: transparent;
   color: var(--color-text);
   cursor: pointer;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, transform 0.1s;
+}
+.ingredient-chip:active {
+  transform: scale(0.97);
 }
 .ingredient-chip:hover {
   border-color: var(--color-text);
@@ -613,7 +674,10 @@ img {
   text-decoration: none;
   border-bottom: 1px dashed var(--color-border);
   padding-bottom: 1px;
-  transition: color 0.15s, border-color 0.15s;
+  transition: color 0.15s, border-color 0.15s, transform 0.1s;
+}
+.lucky-btn:active {
+  transform: scale(0.97);
 }
 .lucky-btn:hover {
   color: var(--color-accent);
@@ -652,12 +716,25 @@ img {
   scroll-snap-align: start;
   border: 1px solid var(--color-border);
   overflow: hidden;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
 }
 .feed-card:hover {
   border-color: var(--color-text-light);
   text-decoration: none;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
+.feed-row > .feed-card {
+  animation: cardIn 0.25s ease-out both;
+}
+.feed-row > .feed-card:nth-child(1) { animation-delay: 0s; }
+.feed-row > .feed-card:nth-child(2) { animation-delay: 0.04s; }
+.feed-row > .feed-card:nth-child(3) { animation-delay: 0.08s; }
+.feed-row > .feed-card:nth-child(4) { animation-delay: 0.12s; }
+.feed-row > .feed-card:nth-child(5) { animation-delay: 0.16s; }
+.feed-row > .feed-card:nth-child(6) { animation-delay: 0.20s; }
+.feed-row > .feed-card:nth-child(7) { animation-delay: 0.24s; }
+.feed-row > .feed-card:nth-child(8) { animation-delay: 0.28s; }
 .feed-card__image {
   width: 100%;
   aspect-ratio: 4 / 3;
@@ -787,7 +864,10 @@ img {
   font-size: 0.8rem;
   cursor: pointer;
   text-decoration: none;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, transform 0.1s;
+}
+.manage-btn:active {
+  transform: scale(0.97);
 }
 .manage-btn:hover {
   border-color: var(--color-text);
@@ -845,6 +925,7 @@ img {
 .recipe-form input:focus,
 .recipe-form select:focus {
   border-color: var(--color-text);
+  box-shadow: 0 1px 0 0 var(--color-accent);
 }
 .recipe-form textarea {
   width: 100%;
@@ -859,6 +940,7 @@ img {
 }
 .recipe-form textarea:focus {
   border-color: var(--color-text);
+  box-shadow: 0 1px 0 0 var(--color-accent);
 }
 .recipe-form__row {
   display: flex;
@@ -888,6 +970,7 @@ img {
   align-items: center;
   justify-content: center;
   z-index: 200;
+  animation: fadeIn 0.15s ease-out;
 }
 .confirm-dialog {
   background: Canvas;
@@ -895,6 +978,7 @@ img {
   padding: 1.5rem;
   max-width: 360px;
   width: 90%;
+  animation: scaleIn 0.15s ease-out;
 }
 .confirm-dialog p {
   margin-bottom: 1rem;
@@ -904,4 +988,13 @@ img {
   display: flex;
   gap: 0.5rem;
   justify-content: flex-end;
+}
+
+/* Accessibility: reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
