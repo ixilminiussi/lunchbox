@@ -1,24 +1,46 @@
 :root {
-  color-scheme: light dark;
-  --color-accent: #e07a5f;
-  --color-accent-light: #f2a68d;
-  --color-bg: light-dark(#fafafa, #151515);
-  --color-surface: light-dark(#ffffff, #1c1c1c);
-  --color-text: light-dark(#333, #ccc);
-  --color-text-light: light-dark(#888, #666);
-  --color-border: light-dark(#ddd, #333);
-  --color-badge-vegan: #6a994e;
-  --color-badge-vegetarian: #a7c957;
-  --color-badge-gf: #dda15e;
-  --color-badge-df: #bc6c25;
-  --color-badge-nf: #9b5de5;
-  --color-author-ixil: #e07a5f;
-  --color-author-mathilde: #5f9ea0;
   --max-width: 720px;
 }
 
-[data-theme="light"] { color-scheme: light; }
-[data-theme="dark"] { color-scheme: dark; }
+/* Catppuccin Latte (light) */
+[data-theme="light"] {
+  color-scheme: light;
+  --color-accent: #fe640b;
+  --color-accent-light: #dc8a78;
+  --color-bg: #eff1f5;
+  --color-surface: #e6e9ef;
+  --color-text: #4c4f69;
+  --color-text-light: #8c8fa1;
+  --color-border: #ccd0da;
+  --color-badge-vegan: #40a02b;
+  --color-badge-vegetarian: #179299;
+  --color-badge-gf: #df8e1d;
+  --color-badge-df: #e64553;
+  --color-badge-nf: #8839ef;
+  --color-author-ixil: #fe640b;
+  --color-author-mathilde: #179299;
+  --color-danger: #d20f39;
+}
+
+/* Catppuccin Mocha (dark) */
+[data-theme="dark"] {
+  color-scheme: dark;
+  --color-accent: #fab387;
+  --color-accent-light: #f5e0dc;
+  --color-bg: #1e1e2e;
+  --color-surface: #181825;
+  --color-text: #cdd6f4;
+  --color-text-light: #7f849c;
+  --color-border: #313244;
+  --color-badge-vegan: #a6e3a1;
+  --color-badge-vegetarian: #94e2d5;
+  --color-badge-gf: #f9e2af;
+  --color-badge-df: #eba0ac;
+  --color-badge-nf: #cba6f7;
+  --color-author-ixil: #fab387;
+  --color-author-mathilde: #94e2d5;
+  --color-danger: #f38ba8;
+}
 
 *, *::before, *::after {
   box-sizing: border-box;
@@ -684,7 +706,7 @@ img {
   text-align: center;
 }
 .login-error {
-  color: #e07a5f;
+  color: var(--color-danger);
   font-size: 0.85rem;
   padding: 0.5rem 0;
 }
@@ -781,12 +803,12 @@ img {
   cursor: not-allowed;
 }
 .manage-btn--danger {
-  color: #e07a5f;
-  border-color: #e07a5f;
+  color: var(--color-danger);
+  border-color: var(--color-danger);
 }
 .manage-btn--danger:hover {
-  color: #c0513a;
-  border-color: #c0513a;
+  color: var(--color-accent);
+  border-color: var(--color-accent);
 }
 
 /* Recipe Form */
