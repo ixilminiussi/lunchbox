@@ -7,8 +7,6 @@
   color-scheme: light;
   --color-accent: #fe640b;
   --color-accent-light: #dc8a78;
-  --color-bg: #eff1f5;
-  --color-surface: #e6e9ef;
   --color-text: #4c4f69;
   --color-text-light: #8c8fa1;
   --color-border: #ccd0da;
@@ -27,8 +25,6 @@
   color-scheme: dark;
   --color-accent: #fab387;
   --color-accent-light: #f5e0dc;
-  --color-bg: #1e1e2e;
-  --color-surface: #181825;
   --color-text: #cdd6f4;
   --color-text-light: #7f849c;
   --color-border: #313244;
@@ -51,7 +47,6 @@
 html {
   font-family: 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
   font-size: 14px;
-  background: var(--color-bg);
   color: var(--color-text);
   line-height: 1.6;
 }
@@ -91,7 +86,7 @@ img {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: var(--color-bg);
+  background: Canvas;
 }
 .nav .container {
   display: flex;
@@ -895,7 +890,7 @@ img {
   z-index: 200;
 }
 .confirm-dialog {
-  background: var(--color-surface);
+  background: Canvas;
   border: 1px solid var(--color-border);
   padding: 1.5rem;
   max-width: 360px;
