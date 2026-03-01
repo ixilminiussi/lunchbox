@@ -663,3 +663,228 @@ img {
   flex-direction: column;
   gap: 0.3rem;
 }
+
+/* Login Page */
+.login-row {
+  display: flex;
+  gap: 1.5rem;
+  padding: 2rem 0;
+  justify-content: center;
+}
+.login-card {
+  border: 1px solid var(--color-border);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 200px;
+}
+.login-card h2 {
+  font-size: 1rem;
+  text-align: center;
+}
+.login-error {
+  color: #e07a5f;
+  font-size: 0.85rem;
+  padding: 0.5rem 0;
+}
+
+/* Nav Auth */
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.nav-logout-btn {
+  background: none;
+  border: none;
+  color: var(--color-text-light);
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+.nav-logout-btn:hover {
+  color: var(--color-text);
+}
+
+/* Ratings */
+.rating-display {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 0.5rem 0;
+}
+.rating-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+.rating-stars {
+  display: inline-flex;
+  gap: 0;
+}
+.rating-star {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: default;
+  padding: 0 1px;
+  color: var(--color-border);
+  font-family: inherit;
+  line-height: 1;
+}
+.rating-star--filled {
+  color: var(--color-accent);
+}
+.rating-star:not(:disabled) {
+  cursor: pointer;
+}
+.rating-star:not(:disabled):hover {
+  color: var(--color-accent-light);
+}
+.rating-compact {
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+/* Management Buttons */
+.manage-bar {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+}
+.manage-inline {
+  display: flex;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+.manage-btn {
+  display: inline-block;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.15s;
+}
+.manage-btn:hover {
+  border-color: var(--color-text);
+  text-decoration: none;
+}
+.manage-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.manage-btn--danger {
+  color: #e07a5f;
+  border-color: #e07a5f;
+}
+.manage-btn--danger:hover {
+  color: #c0513a;
+  border-color: #c0513a;
+}
+
+/* Recipe Form */
+.recipe-form {
+  padding: 1rem 0 2rem;
+}
+.recipe-form fieldset {
+  border: 1px solid var(--color-border);
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+.recipe-form legend {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-light);
+  padding: 0 0.25rem;
+}
+.recipe-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  color: var(--color-text-light);
+  margin-bottom: 0.5rem;
+}
+.recipe-form input,
+.recipe-form select {
+  padding: 0.4rem 0;
+  border: none;
+  border-bottom: 1px solid var(--color-border);
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: var(--color-text);
+  outline: none;
+}
+.recipe-form input:focus,
+.recipe-form select:focus {
+  border-color: var(--color-text);
+}
+.recipe-form textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: var(--color-text);
+  outline: none;
+  resize: vertical;
+}
+.recipe-form textarea:focus {
+  border-color: var(--color-text);
+}
+.recipe-form__row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.recipe-form__row > label {
+  flex: 1;
+  min-width: 120px;
+}
+.recipe-form__tag-group {
+  margin-bottom: 0.5rem;
+}
+.recipe-form__tag-label {
+  font-size: 0.75rem;
+  color: var(--color-text-light);
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+/* Delete Confirmation Overlay */
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+.confirm-dialog {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  padding: 1.5rem;
+  max-width: 360px;
+  width: 90%;
+}
+.confirm-dialog p {
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+.confirm-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}

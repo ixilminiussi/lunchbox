@@ -1,0 +1,14 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import RecipeForm from '../../components/RecipeForm.tsx';
+import ImportLoader from '../../components/ImportLoader.tsx';
+import { getUser } from '../../lib/session';
+
+const user = getUser(Astro.request);
+if (!user) return Astro.redirect('/login');
+---
+
+<BaseLayout title="Import Recipe — Lunchbox">
+  <h1 class="page-heading">Import from URL</h1>
+  <ImportLoader client:load currentUser={user} />
+</BaseLayout>

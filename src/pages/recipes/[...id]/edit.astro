@@ -1,0 +1,47 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import RecipeForm from '../../../components/RecipeForm.tsx';
+import { getUser } from '../../../lib/session';
+import { getRecipeById } from '../../../lib/recipes';
+
+const user = getUser(Astro.request);
+if (!user) return Astro.redirect('/login');
+
+const { id } = Astro.params;
+if (!id) return Astro.redirect('/browse');
+
+const recipe = getRecipeById(id);
+if (!recipe) return Astro.redirect('/browse');
+
+const d = recipe.data;
+
+// Extract raw instruction text from body (strip the "## Instructions" header)
+let rawInstructions = recipe.body.trim();
+if (rawInstructions.startsWith('## Instructions')) {
+  rawInstructions = rawInstructions.replace(/^## Instructions\s*\n*/, '').trim();
+}
+---
+
+<BaseLayout title={`Edit ${d.title} — Lunchbox`}>
+  <h1 class="page-heading">Edit: {d.title}</h1>
+  <RecipeForm
+    client:load
+    mode="edit"
+    recipeId={id}
+    initial={{
+      title: d.title,
+      servings: d.servings,
+      prep_time: d.prep_time,
+      cook_time: d.cook_time,
+      cuisine: d.cuisine ?? '',
+      meal_type: d.meal_type,
+      difficulty: d.difficulty,
+      tags: d.tags,
+      added_by: d.added_by,
+      source: d.source ?? '',
+      image: d.image ?? '',
+      ingredients: d.ingredients.join('\n'),
+      instructions: rawInstructions,
+    }}
+  />
+</BaseLayout>

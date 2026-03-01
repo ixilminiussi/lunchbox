@@ -1,0 +1,13 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import MarkdownImporter from '../../components/MarkdownImporter.tsx';
+import { getUser } from '../../lib/session';
+
+const user = getUser(Astro.request);
+if (!user) return Astro.redirect('/login');
+---
+
+<BaseLayout title="Import Markdown — Lunchbox">
+  <h1 class="page-heading">Import from markdown</h1>
+  <MarkdownImporter client:load />
+</BaseLayout>

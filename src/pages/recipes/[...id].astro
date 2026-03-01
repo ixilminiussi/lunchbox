@@ -1,18 +1,20 @@
 ---
-import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import DietaryBadge from '../../components/DietaryBadge.astro';
 import TagBadge from '../../components/TagBadge.astro';
 import ServingsAdjuster from '../../components/ServingsAdjuster.tsx';
+import RatingDisplay from '../../components/RatingDisplay.tsx';
+import { getRecipeById } from '../../lib/recipes';
 import { inferDietary } from '../../lib/dietary';
+import { getUser } from '../../lib/session';
 
-export async function getStaticPaths() {
-  const recipes = await getCollection('recipes');
-  return recipes.map((r) => ({ params: { id: r.id }, props: { recipe: r } }));
-}
+const { id } = Astro.params;
+if (!id) return Astro.redirect('/browse');
 
-const { recipe } = Astro.props;
-const { Content } = await render(recipe);
+const recipe = getRecipeById(id);
+if (!recipe) return Astro.redirect('/browse');
+
+const currentUser = getUser(Astro.request);
 const dietary = inferDietary(recipe.data.ingredients);
 const d = recipe.data;
 const authorClass = d.added_by?.toLowerCase() === 'mathilde' ? 'author-mathilde' : 'author-ixil';
@@ -21,6 +23,14 @@ const authorClass = d.added_by?.toLowerCase() === 'mathilde' ? 'author-mathilde'
 <BaseLayout title={`${d.title} — Lunchbox`}>
   <div class="recipe-header">
     <h1>{d.title}</h1>
+
+    {currentUser && (
+      <div class="manage-inline">
+        <a href={`/recipes/${id}/edit`} class="manage-btn">[edit]</a>
+        <button class="manage-btn manage-btn--danger" id="delete-btn">[delete]</button>
+      </div>
+    )}
+
     <div class="recipe-meta">
       <span>Prep {d.prep_time}</span>
       <span>Cook {d.cook_time}</span>
@@ -35,6 +45,13 @@ const authorClass = d.added_by?.toLowerCase() === 'mathilde' ? 'author-mathilde'
     <div class="recipe-tags">
       {d.tags.map((tag) => <TagBadge tag={tag} />)}
     </div>
+
+    <RatingDisplay
+      client:load
+      recipeId={id}
+      ratings={d.ratings}
+      currentUser={currentUser}
+    />
   </div>
 
   {d.image && <img class="recipe-image" src={d.image} alt={d.title} />}
@@ -43,14 +60,37 @@ const authorClass = d.added_by?.toLowerCase() === 'mathilde' ? 'author-mathilde'
     <aside class="recipe-ingredients">
       <ServingsAdjuster client:load ingredients={d.ingredients} baseServings={d.servings} />
     </aside>
-    <div class="recipe-instructions">
-      <Content />
-    </div>
+    <div class="recipe-instructions" set:html={recipe.renderedHTML} />
   </div>
 
   {d.source && (
     <p style="padding-bottom: 2rem; font-size: 0.85rem; color: var(--color-text-light);">
       Source: <a href={d.source} target="_blank" rel="noopener">{d.source}</a>
     </p>
+  )}
+
+  {currentUser && (
+    <div class="confirm-overlay" id="delete-overlay" style="display:none;">
+      <div class="confirm-dialog">
+        <p>Delete <strong>{d.title}</strong>?</p>
+        <div class="confirm-actions">
+          <button class="manage-btn manage-btn--danger" id="confirm-delete">Delete</button>
+          <button class="manage-btn" id="cancel-delete">Cancel</button>
+        </div>
+      </div>
+    </div>
+    <script is:inline define:vars={{ recipeId: id }}>
+      document.getElementById('delete-btn')?.addEventListener('click', () => {
+        document.getElementById('delete-overlay').style.display = 'flex';
+      });
+      document.getElementById('cancel-delete')?.addEventListener('click', () => {
+        document.getElementById('delete-overlay').style.display = 'none';
+      });
+      document.getElementById('confirm-delete')?.addEventListener('click', async () => {
+        const res = await fetch(`/api/recipes/${recipeId}`, { method: 'DELETE' });
+        if (res.ok) window.location.href = '/browse';
+        else alert('Failed to delete recipe');
+      });
+    </script>
   )}
 </BaseLayout>

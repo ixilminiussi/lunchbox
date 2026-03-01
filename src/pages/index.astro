@@ -1,11 +1,11 @@
 ---
-import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import HomeFeeds from '../components/HomeFeeds.tsx';
+import { getAllRecipes } from '../lib/recipes';
 import { inferDietary } from '../lib/dietary';
 import { inferSeasons, getCurrentSeason } from '../lib/seasons';
 
-const recipes = await getCollection('recipes');
+const recipes = getAllRecipes();
 const recipesWithMeta = recipes.map((r) => ({
   id: r.id,
   title: r.data.title,
@@ -15,7 +15,7 @@ const recipesWithMeta = recipes.map((r) => ({
   difficulty: r.data.difficulty,
   added_by: r.data.added_by,
   dietary: inferDietary(r.data.ingredients),
-  date: r.data.date.toISOString(),
+  date: r.data.date,
   seasons: inferSeasons(r.data.ingredients),
   ratings: r.data.ratings ?? {},
 }));

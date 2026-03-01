@@ -1,12 +1,14 @@
 ---
 import '../styles/global.css';
 import ThemeToggle from '../components/ThemeToggle.tsx';
+import { getUser } from '../lib/session';
 
 interface Props {
   title?: string;
 }
 
 const { title = 'Lunchbox' } = Astro.props;
+const currentUser = getUser(Astro.request);
 ---
 
 <!doctype html>
@@ -35,6 +37,18 @@ const { title = 'Lunchbox' } = Astro.props;
         <ul class="nav-links">
           <li><a href="/">Home</a></li>
           <li><a href="/browse">Browse</a></li>
+          {currentUser ? (
+            <li class="nav-user">
+              <span class={currentUser.toLowerCase() === 'mathilde' ? 'author-mathilde' : 'author-ixil'}>
+                {currentUser}
+              </span>
+              <form method="POST" action="/api/auth/logout" style="display:inline;">
+                <button type="submit" class="nav-logout-btn">[logout]</button>
+              </form>
+            </li>
+          ) : (
+            <li><a href="/login">[login]</a></li>
+          )}
           <li><ThemeToggle client:load /></li>
         </ul>
       </div>

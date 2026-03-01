@@ -68,6 +68,13 @@ function RecipeCard({ r }: { r: RecipeData }) {
               </span>
             ))}
           </div>
+          {(r.ratings?.ixil !== undefined || r.ratings?.mathilde !== undefined) && (
+            <span class="rating-compact">
+              {r.ratings?.ixil !== undefined && <span class="author-ixil">I:{r.ratings.ixil}</span>}
+              {r.ratings?.ixil !== undefined && r.ratings?.mathilde !== undefined && ' '}
+              {r.ratings?.mathilde !== undefined && <span class="author-mathilde">M:{r.ratings.mathilde}</span>}
+            </span>
+          )}
         </div>
       </article>
     </a>
