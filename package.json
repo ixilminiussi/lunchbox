@@ -6,13 +6,12 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "import": "tsx scripts/import-recipe.ts"
+    "import": "go run ./cmd/import-recipe",
+    "browse": "go run ./cmd/browse-recipes"
   },
   "dependencies": {
     "@astrojs/preact": "^4.1.3",
     "astro": "^5.17.1",
-    "cheerio": "^1.2.0",
-    "preact": "^10.28.4",
-    "tsx": "^4.21.0"
+    "preact": "^10.28.4"
   }
 }
