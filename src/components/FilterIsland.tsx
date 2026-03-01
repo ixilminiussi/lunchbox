@@ -62,7 +62,7 @@ export default function FilterIsland({
 }: Props) {
   const [cuisine, setCuisine] = useState('');
   const [mealType, setMealType] = useState('');
-  const [tag, setTag] = useState('');
+  const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
   const [diet, setDiet] = useState('');
   const [author, setAuthor] = useState('');
   const [search, setSearch] = useState('');
@@ -94,7 +94,7 @@ export default function FilterIsland({
     let result = recipes.filter((r) => {
       if (cuisine && r.cuisine !== cuisine) return false;
       if (mealType && r.meal_type !== mealType) return false;
-      if (tag && !r.tags.includes(tag)) return false;
+      if (selectedTags.size > 0 && ![...selectedTags].every((t) => r.tags.includes(t))) return false;
       if (diet && !r.dietary.includes(diet)) return false;
       if (author && r.added_by !== author) return false;
       if (search && !r.title.toLowerCase().includes(search.toLowerCase())) return false;
@@ -108,12 +108,12 @@ export default function FilterIsland({
     }
 
     return result;
-  }, [recipes, cuisine, mealType, tag, diet, author, search, fridgeMode, selectedIngredients]);
+  }, [recipes, cuisine, mealType, selectedTags, diet, author, search, fridgeMode, selectedIngredients]);
 
   function clear() {
     setCuisine('');
     setMealType('');
-    setTag('');
+    setSelectedTags(new Set());
     setDiet('');
     setAuthor('');
     setSearch('');
@@ -147,12 +147,24 @@ export default function FilterIsland({
           ))}
         </select>
         {allTags.length > 0 && (
-          <select value={tag} onChange={(e) => setTag((e.target as HTMLSelectElement).value)}>
-            <option value="">All Tags</option>
+          <div class="tag-multiselect">
             {allTags.map((t) => (
-              <option key={t} value={t}>{t}</option>
+              <button
+                key={t}
+                class={`tag-chip ${selectedTags.has(t) ? 'tag-chip-active' : ''}`}
+                onClick={() =>
+                  setSelectedTags((prev) => {
+                    const next = new Set(prev);
+                    if (next.has(t)) next.delete(t);
+                    else next.add(t);
+                    return next;
+                  })
+                }
+              >
+                {t}
+              </button>
             ))}
-          </select>
+          </div>
         )}
         {allDiets.length > 0 && (
           <select value={diet} onChange={(e) => setDiet((e.target as HTMLSelectElement).value)}>
