@@ -1,14 +1,13 @@
 ---
 import '../styles/global.css';
 import ThemeToggle from '../components/ThemeToggle.tsx';
-import { getUser } from '../lib/session';
 
 interface Props {
   title?: string;
+  currentUser?: string | null;
 }
 
-const { title = 'Lunchbox' } = Astro.props;
-const currentUser = getUser(Astro.request);
+const { title = 'Lunchbox', currentUser = null } = Astro.props;
 ---
 
 <!doctype html>

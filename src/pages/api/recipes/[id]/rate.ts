@@ -1,3 +1,4 @@
+export const prerender = false;
 import type { APIRoute } from 'astro';
 import { getUser } from '../../../../lib/session';
 import { updateRating } from '../../../../lib/recipes';

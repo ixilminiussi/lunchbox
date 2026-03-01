@@ -3,9 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import FilterIsland from '../components/FilterIsland.tsx';
 import { getAllRecipes } from '../lib/recipes';
 import { inferDietary, normalise } from '../lib/dietary';
-import { getUser } from '../lib/session';
 
-const currentUser = getUser(Astro.request);
 const recipes = getAllRecipes();
 const recipesData = recipes.map((r) => ({
   id: r.id,
@@ -35,14 +33,12 @@ const allIngredientNames = [...new Set(recipesData.flatMap((r) => r.ingredients.
 <BaseLayout title="Browse — Lunchbox">
   <h1 class="page-heading">Browse recipes</h1>
 
-  {currentUser && (
-    <div class="manage-bar">
-      <a href="/recipes/new" class="manage-btn">+ Add recipe</a>
-      <a href="/recipes/import" class="manage-btn">Import from URL</a>
-      <a href="/recipes/import-md" class="manage-btn">Import markdown</a>
-      <a href="/api/recipes/export" class="manage-btn">Download all (.zip)</a>
-    </div>
-  )}
+  <div class="manage-bar">
+    <a href="/recipes/new" class="manage-btn">+ Add recipe</a>
+    <a href="/recipes/import" class="manage-btn">Import from URL</a>
+    <a href="/recipes/import-md" class="manage-btn">Import markdown</a>
+    <a href="/api/recipes/export" class="manage-btn">Download all (.zip)</a>
+  </div>
 
   <FilterIsland
     client:load

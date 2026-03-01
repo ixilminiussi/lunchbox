@@ -4,9 +4,12 @@ import DietaryBadge from '../../components/DietaryBadge.astro';
 import TagBadge from '../../components/TagBadge.astro';
 import ServingsAdjuster from '../../components/ServingsAdjuster.tsx';
 import RatingDisplay from '../../components/RatingDisplay.tsx';
-import { getRecipeById } from '../../lib/recipes';
+import { getAllRecipes, getRecipeById } from '../../lib/recipes';
 import { inferDietary } from '../../lib/dietary';
-import { getUser } from '../../lib/session';
+
+export function getStaticPaths() {
+  return getAllRecipes().map((r) => ({ params: { id: r.id } }));
+}
 
 const { id } = Astro.params;
 if (!id) return Astro.redirect('/browse');
@@ -14,7 +17,7 @@ if (!id) return Astro.redirect('/browse');
 const recipe = getRecipeById(id);
 if (!recipe) return Astro.redirect('/browse');
 
-const currentUser = getUser(Astro.request);
+const currentUser = null;
 const dietary = inferDietary(recipe.data.ingredients);
 const d = recipe.data;
 const authorClass = d.added_by?.toLowerCase() === 'mathilde' ? 'author-mathilde' : 'author-ixil';

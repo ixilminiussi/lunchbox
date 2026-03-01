@@ -1,4 +1,5 @@
 ---
+export const prerender = false;
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getUser } from '../lib/session';
 
@@ -8,7 +9,7 @@ if (user) return Astro.redirect('/');
 const error = Astro.url.searchParams.has('error');
 ---
 
-<BaseLayout title="Login — Lunchbox">
+<BaseLayout title="Login — Lunchbox" currentUser={null}>
   <h1 class="page-heading">Login</h1>
   {error && <p class="login-error">Wrong password. Try again.</p>}
   <div class="login-row">

@@ -1,3 +1,4 @@
+export const prerender = false;
 import type { APIRoute } from 'astro';
 import matter from 'gray-matter';
 import { getUser } from '../../../lib/session';

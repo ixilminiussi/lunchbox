@@ -1,4 +1,5 @@
 ---
+export const prerender = false;
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import RecipeForm from '../../components/RecipeForm.tsx';
 import ImportLoader from '../../components/ImportLoader.tsx';
@@ -8,7 +9,7 @@ const user = getUser(Astro.request);
 if (!user) return Astro.redirect('/login');
 ---
 
-<BaseLayout title="Import Recipe — Lunchbox">
+<BaseLayout title="Import Recipe — Lunchbox" currentUser={user}>
   <h1 class="page-heading">Import from URL</h1>
   <ImportLoader client:load currentUser={user} />
 </BaseLayout>
