@@ -396,36 +396,40 @@ main.container {
 /* Filter page */
 .filter-bar {
   display: flex;
+  flex-direction: column;
   gap: 0.5rem;
-  flex-wrap: wrap;
   padding: 1rem 0;
 }
-.filter-bar select,
-.filter-bar button {
+.filter-bar button:not(.tag-chip) {
   padding: 0.35rem 0.5rem;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-text-light);
   background: transparent;
   font-family: inherit;
   font-size: 0.8rem;
-  color: var(--color-text);
-  cursor: pointer;
-}
-.filter-bar select:focus {
-  border-color: var(--color-text);
-  outline: none;
-}
-.filter-bar button {
-  border-color: var(--color-text-light);
   color: var(--color-text-light);
+  cursor: pointer;
   transition: border-color 0.15s, color 0.15s, transform 0.1s;
 }
-.filter-bar button:hover {
+.filter-bar button:not(.tag-chip):hover {
   border-color: var(--color-text);
   color: var(--color-text);
   transform: translateY(-1px);
 }
-.filter-bar button:active {
+.filter-bar button:not(.tag-chip):active {
   transform: scale(0.97);
+}
+.filter-group {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.filter-group__label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-light);
+  min-width: 4.5rem;
 }
 
 

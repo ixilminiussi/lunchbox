@@ -62,12 +62,19 @@ export default function FilterIsland({
   authors,
   allIngredientNames,
 }: Props) {
-  const [cuisine, setCuisine] = useState('');
-  const [mealType, setMealType] = useState('');
+  const [selectedCuisines, setSelectedCuisines] = useState<Set<string>>(new Set());
+  const [selectedMealTypes, setSelectedMealTypes] = useState<Set<string>>(new Set());
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
-  const [diet, setDiet] = useState('');
-  const [author, setAuthor] = useState('');
+  const [selectedDiets, setSelectedDiets] = useState<Set<string>>(new Set());
+  const [selectedAuthors, setSelectedAuthors] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState('');
+
+  const toggle = (set: Set<string>, setter: (s: Set<string>) => void, value: string) => {
+    const next = new Set(set);
+    if (next.has(value)) next.delete(value);
+    else next.add(value);
+    setter(next);
+  };
 
   // Fridge mode state
   const [fridgeMode, setFridgeMode] = useState(false);
@@ -94,11 +101,11 @@ export default function FilterIsland({
 
   const filtered = useMemo(() => {
     let result = recipes.filter((r) => {
-      if (cuisine && r.cuisine !== cuisine) return false;
-      if (mealType && r.meal_type !== mealType) return false;
-      if (selectedTags.size > 0 && ![...selectedTags].every((t) => r.tags.includes(t))) return false;
-      if (diet && !r.dietary.includes(diet)) return false;
-      if (author && r.added_by !== author) return false;
+      if (selectedCuisines.size > 0 && !selectedCuisines.has(r.cuisine)) return false;
+      if (selectedMealTypes.size > 0 && !selectedMealTypes.has(r.meal_type)) return false;
+      if (selectedTags.size > 0 && !r.tags.some((t) => selectedTags.has(t))) return false;
+      if (selectedDiets.size > 0 && !r.dietary.some((d) => selectedDiets.has(d))) return false;
+      if (selectedAuthors.size > 0 && !selectedAuthors.has(r.added_by)) return false;
       if (search && !r.title.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
     });
@@ -110,14 +117,14 @@ export default function FilterIsland({
     }
 
     return result;
-  }, [recipes, cuisine, mealType, selectedTags, diet, author, search, fridgeMode, selectedIngredients]);
+  }, [recipes, selectedCuisines, selectedMealTypes, selectedTags, selectedDiets, selectedAuthors, search, fridgeMode, selectedIngredients]);
 
   function clear() {
-    setCuisine('');
-    setMealType('');
+    setSelectedCuisines(new Set());
+    setSelectedMealTypes(new Set());
     setSelectedTags(new Set());
-    setDiet('');
-    setAuthor('');
+    setSelectedDiets(new Set());
+    setSelectedAuthors(new Set());
     setSearch('');
   }
 
@@ -126,65 +133,87 @@ export default function FilterIsland({
   return (
     <div>
       <div class="filter-bar">
-        <input
-          class="search-input"
-          style="flex: 1; min-width: 150px;"
-          type="text"
-          placeholder="Search..."
-          value={search}
-          onInput={(e) => setSearch((e.target as HTMLInputElement).value)}
-        />
-        {cuisines.length > 0 && (
-          <select value={cuisine} onChange={(e) => setCuisine((e.target as HTMLSelectElement).value)}>
-            <option value="">All Cuisines</option>
+        <div class="filter-group">
+          <input
+            class="search-input"
+            style="flex: 1; min-width: 150px;"
+            type="text"
+            placeholder="Search..."
+            value={search}
+            onInput={(e) => setSearch((e.target as HTMLInputElement).value)}
+          />
+          <button onClick={clear}>Clear</button>
+        </div>
+        {cuisines.length > 1 && (
+          <div class="filter-group">
+            <span class="filter-group__label">cuisine</span>
             {cuisines.map((c) => (
-              <option key={c} value={c}>{c}</option>
+              <button
+                key={c}
+                class={`tag-chip ${selectedCuisines.has(c) ? 'tag-chip-active' : ''}`}
+                onClick={() => toggle(selectedCuisines, setSelectedCuisines, c)}
+              >
+                {c}
+              </button>
             ))}
-          </select>
+          </div>
         )}
-        <select value={mealType} onChange={(e) => setMealType((e.target as HTMLSelectElement).value)}>
-          <option value="">All Meals</option>
-          {mealTypes.map((m) => (
-            <option key={m} value={m}>{m}</option>
-          ))}
-        </select>
-        {allTags.length > 0 && (
-          <div class="tag-multiselect">
+        {mealTypes.length > 1 && (
+          <div class="filter-group">
+            <span class="filter-group__label">meal</span>
+            {mealTypes.map((m) => (
+              <button
+                key={m}
+                class={`tag-chip ${selectedMealTypes.has(m) ? 'tag-chip-active' : ''}`}
+                onClick={() => toggle(selectedMealTypes, setSelectedMealTypes, m)}
+              >
+                {m}
+              </button>
+            ))}
+          </div>
+        )}
+        {allTags.length > 1 && (
+          <div class="filter-group">
+            <span class="filter-group__label">tags</span>
             {allTags.map((t) => (
               <button
                 key={t}
                 class={`tag-chip ${selectedTags.has(t) ? 'tag-chip-active' : ''}`}
-                onClick={() =>
-                  setSelectedTags((prev) => {
-                    const next = new Set(prev);
-                    if (next.has(t)) next.delete(t);
-                    else next.add(t);
-                    return next;
-                  })
-                }
+                onClick={() => toggle(selectedTags, setSelectedTags, t)}
               >
                 {t}
               </button>
             ))}
           </div>
         )}
-        {allDiets.length > 0 && (
-          <select value={diet} onChange={(e) => setDiet((e.target as HTMLSelectElement).value)}>
-            <option value="">All Diets</option>
+        {allDiets.length > 1 && (
+          <div class="filter-group">
+            <span class="filter-group__label">diet</span>
             {allDiets.map((d) => (
-              <option key={d} value={d}>{d}</option>
+              <button
+                key={d}
+                class={`tag-chip ${selectedDiets.has(d) ? 'tag-chip-active' : ''}`}
+                onClick={() => toggle(selectedDiets, setSelectedDiets, d)}
+              >
+                {d === 'gluten-free' ? 'GF' : d === 'dairy-free' ? 'DF' : d === 'nut-free' ? 'NF' : d}
+              </button>
             ))}
-          </select>
+          </div>
         )}
         {authors.length > 1 && (
-          <select value={author} onChange={(e) => setAuthor((e.target as HTMLSelectElement).value)}>
-            <option value="">All Authors</option>
+          <div class="filter-group">
+            <span class="filter-group__label">author</span>
             {authors.map((a) => (
-              <option key={a} value={a}>{a}</option>
+              <button
+                key={a}
+                class={`tag-chip ${selectedAuthors.has(a) ? 'tag-chip-active' : ''}`}
+                onClick={() => toggle(selectedAuthors, setSelectedAuthors, a)}
+              >
+                {a}
+              </button>
             ))}
-          </select>
+          </div>
         )}
-        <button onClick={clear}>Clear</button>
       </div>
 
       <div class="fridge-section">
