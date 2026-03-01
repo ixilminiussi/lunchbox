@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'preact/hooks';
+import { useMemo } from 'preact/hooks';
 import type { Season } from '../lib/seasons';
 
 interface RecipeData {
@@ -8,9 +8,11 @@ interface RecipeData {
   prep_time: string;
   cook_time: string;
   difficulty: string;
+  added_by: string;
   dietary: string[];
   date: string; // ISO string
   seasons: Season[];
+  ratings: Record<string, number>;
 }
 
 interface Props {
@@ -29,21 +31,16 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-function getRating(user: string, recipeId: string): number | null {
-  try {
-    const v = localStorage.getItem(`lunchbox-rating-${user}-${recipeId}`);
-    return v ? parseInt(v, 10) : null;
-  } catch {
-    return null;
-  }
-}
-
 const SEASON_LABEL: Record<Season, string> = {
   winter: 'Winter',
   spring: 'Spring',
   summer: 'Summer',
   autumn: 'Autumn',
 };
+
+function authorClass(addedBy: string): string {
+  return addedBy?.toLowerCase() === 'mathilde' ? 'author-mathilde' : 'author-ixil';
+}
 
 function RecipeCard({ r }: { r: RecipeData }) {
   return (
@@ -61,6 +58,9 @@ function RecipeCard({ r }: { r: RecipeData }) {
             <span>Cook {r.cook_time}</span>
             <span>{r.difficulty}</span>
           </div>
+          {r.added_by && (
+            <span class={`recipe-card-author ${authorClass(r.added_by)}`}>{r.added_by}</span>
+          )}
           <div class="recipe-card-badges">
             {r.dietary.map((d) => (
               <span key={d} class={`badge badge-${d}`}>
@@ -89,24 +89,6 @@ function FeedRow({ title, recipes }: { title: string; recipes: RecipeData[] }) {
 }
 
 export default function HomeFeeds({ recipes, currentSeason }: Props) {
-  const [loaded, setLoaded] = useState(false);
-  const [ratings, setRatings] = useState<Record<string, Record<string, number>>>({});
-
-  useEffect(() => {
-    const data: Record<string, Record<string, number>> = {};
-    for (const user of USERS) {
-      data[user] = {};
-      for (const r of recipes) {
-        const rating = getRating(user, r.id);
-        if (rating !== null) {
-          data[user][r.id] = rating;
-        }
-      }
-    }
-    setRatings(data);
-    setLoaded(true);
-  }, [recipes]);
-
   const luckyRecipe = useMemo(() => {
     if (recipes.length === 0) return null;
     return recipes[Math.floor(Math.random() * recipes.length)];
@@ -119,39 +101,32 @@ export default function HomeFeeds({ recipes, currentSeason }: Props) {
   }, [recipes]);
 
   const seasonalPicks = useMemo(() => {
-    if (!loaded) return [];
     return shuffle(
       recipes.filter((r) => {
         if (!r.seasons.includes(currentSeason)) return false;
-        const ixilRating = ratings['ixil']?.[r.id];
-        const mathildeRating = ratings['mathilde']?.[r.id];
+        const ixilRating = r.ratings?.['ixil'];
+        const mathildeRating = r.ratings?.['mathilde'];
         return ixilRating !== undefined && ixilRating >= 4
           && mathildeRating !== undefined && mathildeRating >= 4;
       })
     );
-  }, [recipes, currentSeason, loaded, ratings]);
+  }, [recipes, currentSeason]);
 
   const ixilList = useMemo(() => {
-    if (!loaded) return [];
-    const userRatings = ratings['ixil'] || {};
     return shuffle(
       recipes
-        .filter((r) => userRatings[r.id] !== undefined)
-        .sort((a, b) => (userRatings[b.id] || 0) - (userRatings[a.id] || 0))
+        .filter((r) => r.ratings?.['ixil'] !== undefined)
+        .sort((a, b) => (b.ratings?.['ixil'] || 0) - (a.ratings?.['ixil'] || 0))
     ).slice(0, 8);
-  }, [recipes, loaded, ratings]);
+  }, [recipes]);
 
   const mathildeList = useMemo(() => {
-    if (!loaded) return [];
-    const userRatings = ratings['mathilde'] || {};
     return shuffle(
       recipes
-        .filter((r) => userRatings[r.id] !== undefined)
-        .sort((a, b) => (userRatings[b.id] || 0) - (userRatings[a.id] || 0))
+        .filter((r) => r.ratings?.['mathilde'] !== undefined)
+        .sort((a, b) => (b.ratings?.['mathilde'] || 0) - (a.ratings?.['mathilde'] || 0))
     ).slice(0, 8);
-  }, [recipes, loaded, ratings]);
-
-  if (!loaded) return null;
+  }, [recipes]);
 
   return (
     <div class="home-feeds">

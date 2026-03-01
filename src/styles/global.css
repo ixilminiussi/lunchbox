@@ -12,6 +12,8 @@
   --color-badge-gf: #dda15e;
   --color-badge-df: #bc6c25;
   --color-badge-nf: #9b5de5;
+  --color-author-ixil: #e07a5f;
+  --color-author-mathilde: #5f9ea0;
   --max-width: 720px;
 }
 
@@ -292,11 +294,19 @@ img {
 .recipe-instructions p {
   margin-bottom: 0.75rem;
 }
-.recipe-actions {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+/* Author colors */
+.author {
+  font-weight: 600;
+}
+.author-ixil {
+  color: var(--color-author-ixil);
+}
+.author-mathilde {
+  color: var(--color-author-mathilde);
+}
+.recipe-card-author {
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
 /* Search */
@@ -349,39 +359,6 @@ img {
   color: var(--color-text);
 }
 
-/* Favorites */
-.favorite-btn {
-  background: none;
-  border: none;
-  font-size: 1.25rem;
-  cursor: pointer;
-  line-height: 1;
-  opacity: 0.6;
-  transition: opacity 0.15s;
-}
-.favorite-btn:hover {
-  opacity: 1;
-}
-
-/* Rating stars */
-.rating {
-  display: flex;
-  gap: 0.1rem;
-}
-.rating button {
-  background: none;
-  border: none;
-  font-size: 1.1rem;
-  cursor: pointer;
-  color: var(--color-border);
-  transition: color 0.1s;
-}
-.rating button.active {
-  color: var(--color-accent);
-}
-.rating button:hover {
-  color: var(--color-accent-light);
-}
 
 /* Page heading */
 .page-heading {

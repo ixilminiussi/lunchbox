@@ -3,8 +3,6 @@ import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import DietaryBadge from '../../components/DietaryBadge.astro';
 import TagBadge from '../../components/TagBadge.astro';
-import FavoriteButton from '../../components/FavoriteButton.tsx';
-import RatingStars from '../../components/RatingStars.tsx';
 import ServingsAdjuster from '../../components/ServingsAdjuster.tsx';
 import { inferDietary } from '../../lib/dietary';
 
@@ -17,6 +15,7 @@ const { recipe } = Astro.props;
 const { Content } = await render(recipe);
 const dietary = inferDietary(recipe.data.ingredients);
 const d = recipe.data;
+const authorClass = d.added_by?.toLowerCase() === 'mathilde' ? 'author-mathilde' : 'author-ixil';
 ---
 
 <BaseLayout title={`${d.title} — Lunchbox`}>
@@ -28,17 +27,13 @@ const d = recipe.data;
       <span>Serves {d.servings}</span>
       <span>{d.difficulty}</span>
       {d.cuisine && <span>{d.cuisine}</span>}
-      {d.added_by && <span>by {d.added_by}</span>}
+      {d.added_by && <span class={`author ${authorClass}`}>by {d.added_by}</span>}
     </div>
     <div class="recipe-badges">
       {dietary.map((diet) => <DietaryBadge diet={diet} />)}
     </div>
     <div class="recipe-tags">
       {d.tags.map((tag) => <TagBadge tag={tag} />)}
-    </div>
-    <div class="recipe-actions">
-      <FavoriteButton recipeId={recipe.id} client:load />
-      <RatingStars recipeId={recipe.id} client:load />
     </div>
   </div>
 

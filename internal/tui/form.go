@@ -7,6 +7,7 @@ import (
 
 	"github.com/charmbracelet/huh"
 
+	"lunchbox/internal/auth"
 	"lunchbox/internal/recipe"
 )
 
@@ -128,6 +129,30 @@ func buildTagGroup(fr *FormResult) *huh.Group {
 	return huh.NewGroup(fields...).Title("Tags")
 }
 
+// buildAddedByField creates a select field for the recipe author.
+func buildAddedByField(fr *FormResult) *huh.Select[string] {
+	options := make([]huh.Option[string], len(auth.ValidUsers))
+	for i, u := range auth.ValidUsers {
+		options[i] = huh.NewOption(u, u)
+	}
+	// Ensure the current value is valid; default to the first user
+	valid := false
+	for _, u := range auth.ValidUsers {
+		if strings.EqualFold(fr.AddedBy, u) {
+			fr.AddedBy = u
+			valid = true
+			break
+		}
+	}
+	if !valid {
+		fr.AddedBy = auth.ValidUsers[0]
+	}
+	return huh.NewSelect[string]().
+		Title("Added By").
+		Options(options...).
+		Value(&fr.AddedBy)
+}
+
 // BuildForm creates a Huh form for editing a recipe.
 func BuildForm(fr *FormResult) *huh.Form {
 	mealTypeOptions := make([]huh.Option[string], len(recipe.MealTypes))
@@ -187,9 +212,7 @@ func BuildForm(fr *FormResult) *huh.Form {
 
 		// Group 4: Attribution
 		huh.NewGroup(
-			huh.NewInput().
-				Title("Added By").
-				Value(&fr.AddedBy),
+			buildAddedByField(fr),
 			huh.NewInput().
 				Title("Source URL").
 				Value(&fr.Source),

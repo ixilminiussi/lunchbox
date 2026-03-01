@@ -67,18 +67,19 @@ func TagCategoryIndex(tag string) int {
 }
 
 type Recipe struct {
-	Title      string     `yaml:"title"`
-	Servings   int        `yaml:"servings"`
-	PrepTime   string     `yaml:"prep_time"`
-	CookTime   string     `yaml:"cook_time"`
-	Cuisine    string     `yaml:"cuisine,omitempty"`
-	MealType   MealType   `yaml:"meal_type"`
-	Difficulty Difficulty `yaml:"difficulty"`
-	Tags       []string   `yaml:"tags"`
-	AddedBy    string     `yaml:"added_by"`
-	Source     string     `yaml:"source,omitempty"`
-	Image      string     `yaml:"image,omitempty"`
-	Ingredients []string  `yaml:"ingredients"`
+	Title       string            `yaml:"title"`
+	Servings    int               `yaml:"servings"`
+	PrepTime    string            `yaml:"prep_time"`
+	CookTime    string            `yaml:"cook_time"`
+	Cuisine     string            `yaml:"cuisine,omitempty"`
+	MealType    MealType          `yaml:"meal_type"`
+	Difficulty  Difficulty        `yaml:"difficulty"`
+	Tags        []string          `yaml:"tags"`
+	AddedBy     string            `yaml:"added_by"`
+	Source      string            `yaml:"source,omitempty"`
+	Image       string            `yaml:"image,omitempty"`
+	Ratings     map[string]int    `yaml:"ratings,omitempty"`
+	Ingredients []string          `yaml:"ingredients"`
 }
 
 // RecipeFile holds a Recipe plus instructions (which are the markdown body, not frontmatter).

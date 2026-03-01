@@ -13,9 +13,11 @@ const recipesWithMeta = recipes.map((r) => ({
   prep_time: r.data.prep_time,
   cook_time: r.data.cook_time,
   difficulty: r.data.difficulty,
+  added_by: r.data.added_by,
   dietary: inferDietary(r.data.ingredients),
   date: r.data.date.toISOString(),
   seasons: inferSeasons(r.data.ingredients),
+  ratings: r.data.ratings ?? {},
 }));
 
 const currentSeason = getCurrentSeason();

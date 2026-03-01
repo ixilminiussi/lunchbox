@@ -246,6 +246,11 @@ export default function FilterIsland({
                     <span>Cook {r.cook_time}</span>
                     <span>{r.difficulty}</span>
                   </div>
+                  {r.added_by && (
+                    <span class={`recipe-card-author ${r.added_by.toLowerCase() === 'mathilde' ? 'author-mathilde' : 'author-ixil'}`}>
+                      {r.added_by}
+                    </span>
+                  )}
                   <div class="recipe-card-badges">
                     {r.dietary.map((d) => (
                       <span key={d} class={`badge badge-${d}`}>

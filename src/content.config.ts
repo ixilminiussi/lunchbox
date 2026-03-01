@@ -15,6 +15,7 @@ const recipes = defineCollection({
     added_by: z.string(),
     source: z.string().optional(),
     image: z.string().optional(),
+    ratings: z.record(z.string(), z.number()).optional().default({}),
     ingredients: z.array(z.string()),
     date: z.coerce.date().optional().default(new Date('2025-01-01')),
   }),

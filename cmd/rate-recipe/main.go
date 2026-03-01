@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/bubbles/list"
-	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/huh"
 	"github.com/charmbracelet/lipgloss"
@@ -20,27 +19,18 @@ type state int
 
 const (
 	stateList state = iota
-	stateView
-	stateEdit
-	stateConfirmDelete
+	stateRate
+	stateDone
 )
 
-// recipeItem implements list.Item for the bubbles list.
 type recipeItem struct {
 	rf *recipe.RecipeFile
 }
 
-func (i recipeItem) Title() string       { return i.rf.Recipe.Title }
+func (i recipeItem) Title() string { return i.rf.Recipe.Title }
 func (i recipeItem) FilterValue() string {
 	r := i.rf.Recipe
-	parts := []string{
-		r.Title,
-		r.Cuisine,
-		strings.Join(r.Tags, " "),
-		string(r.MealType),
-		string(r.Difficulty),
-		strings.Join(r.Ingredients, " "),
-	}
+	parts := []string{r.Title, r.Cuisine, string(r.MealType)}
 	return strings.Join(parts, " ")
 }
 func (i recipeItem) Description() string {
@@ -50,53 +40,46 @@ func (i recipeItem) Description() string {
 		parts = append(parts, r.Cuisine)
 	}
 	parts = append(parts, string(r.MealType), string(r.Difficulty))
-	if r.PrepTime != "" && r.PrepTime != "0 min" {
-		parts = append(parts, "prep: "+r.PrepTime)
-	}
-	if r.CookTime != "" && r.CookTime != "0 min" {
-		parts = append(parts, "cook: "+r.CookTime)
+	// Show current rating if any
+	for user, rating := range r.Ratings {
+		parts = append(parts, fmt.Sprintf("%s: %s", user, strings.Repeat("★", rating)+strings.Repeat("☆", 5-rating)))
 	}
 	return strings.Join(parts, " | ")
 }
 
-// Messages
 type recipesLoaded struct {
 	recipes []*recipe.RecipeFile
 	err     error
 }
 
 type recipeSaved struct {
-	err error
-}
-
-type recipeDeleted struct {
-	err error
+	title string
+	err   error
 }
 
 type model struct {
-	state    state
-	list     list.Model
-	viewport viewport.Model
-	form     *huh.Form
-	formRes  *tui.FormResult
-	paths    *recipe.Paths
-	current  *recipe.RecipeFile
-	err      error
-	width    int
-	height   int
-
-	confirmDelete string // "y" or "n"
+	state   state
+	user    string
+	list    list.Model
+	paths   *recipe.Paths
+	current *recipe.RecipeFile
+	rating  string
+	err     error
+	saved   string
+	width   int
+	height  int
 }
 
-func initialModel() model {
+func initialModel(user string) model {
 	paths, err := recipe.NewPaths()
 	l := list.New(nil, list.NewDefaultDelegate(), 0, 0)
-	l.Title = "Recipes"
+	l.Title = fmt.Sprintf("Rate recipes (as %s)", user)
 	l.SetShowStatusBar(true)
 	l.SetFilteringEnabled(true)
 
 	return model{
 		state: stateList,
+		user:  user,
 		list:  l,
 		paths: paths,
 		err:   err,
@@ -117,17 +100,10 @@ func loadRecipes(paths *recipe.Paths) tea.Cmd {
 	}
 }
 
-func saveRecipeCmd(paths *recipe.Paths, rf *recipe.RecipeFile) tea.Cmd {
+func saveRating(paths *recipe.Paths, rf *recipe.RecipeFile) tea.Cmd {
 	return func() tea.Msg {
 		_, err := paths.SaveRecipe(rf)
-		return recipeSaved{err: err}
-	}
-}
-
-func deleteRecipeCmd(paths *recipe.Paths, rf *recipe.RecipeFile) tea.Cmd {
-	return func() tea.Msg {
-		err := paths.DeleteRecipe(rf)
-		return recipeDeleted{err: err}
+		return recipeSaved{title: rf.Recipe.Title, err: err}
 	}
 }
 
@@ -137,10 +113,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.width = msg.Width
 		m.height = msg.Height
 		m.list.SetSize(msg.Width, msg.Height)
-		if m.state == stateView {
-			m.viewport.Width = msg.Width
-			m.viewport.Height = msg.Height - 3
-		}
 		return m, nil
 
 	case recipesLoaded:
@@ -158,19 +130,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case recipeSaved:
 		if msg.err != nil {
 			m.err = msg.err
+			return m, tea.Quit
 		}
-		// Reload and go back to view
-		m.state = stateView
-		m.showViewport()
-		return m, loadRecipes(m.paths)
-
-	case recipeDeleted:
-		if msg.err != nil {
-			m.err = msg.err
-		}
-		m.state = stateList
-		m.current = nil
-		return m, loadRecipes(m.paths)
+		m.saved = msg.title
+		m.state = stateDone
+		return m, tea.Quit
 
 	case tea.KeyMsg:
 		switch m.state {
@@ -179,66 +143,44 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "enter":
 				if item, ok := m.list.SelectedItem().(recipeItem); ok {
 					m.current = item.rf
-					m.state = stateView
-					m.showViewport()
+					// Pre-fill with current rating
+					current := 0
+					if m.current.Recipe.Ratings != nil {
+						if r, ok := m.current.Recipe.Ratings[strings.ToLower(m.user)]; ok {
+							current = r
+						}
+					}
+					m.rating = fmt.Sprintf("%d", current)
+					m.state = stateRate
 					return m, nil
 				}
 			case "q", "ctrl+c":
 				return m, tea.Quit
 			}
 
-		case stateView:
+		case stateRate:
 			switch msg.String() {
-			case "e":
-				m.formRes = tui.NewFormResult(m.current)
-				m.form = tui.BuildForm(m.formRes)
-				m.state = stateEdit
-				return m, m.form.Init()
-			case "d":
-				m.state = stateConfirmDelete
-				m.confirmDelete = ""
-				return m, nil
+			case "1", "2", "3", "4", "5":
+				rating := int(msg.String()[0] - '0')
+				if m.current.Recipe.Ratings == nil {
+					m.current.Recipe.Ratings = make(map[string]int)
+				}
+				m.current.Recipe.Ratings[strings.ToLower(m.user)] = rating
+				return m, saveRating(m.paths, m.current)
+			case "0":
+				// Remove rating
+				if m.current.Recipe.Ratings != nil {
+					delete(m.current.Recipe.Ratings, strings.ToLower(m.user))
+				}
+				return m, saveRating(m.paths, m.current)
 			case "q", "esc":
 				m.state = stateList
 				m.current = nil
 				return m, nil
-			default:
-				var cmd tea.Cmd
-				m.viewport, cmd = m.viewport.Update(msg)
-				return m, cmd
-			}
-
-		case stateConfirmDelete:
-			switch msg.String() {
-			case "y":
-				return m, deleteRecipeCmd(m.paths, m.current)
-			case "n", "esc":
-				m.state = stateView
-				return m, nil
 			}
 		}
 	}
 
-	// Update form in edit state
-	if m.state == stateEdit && m.form != nil {
-		form, cmd := m.form.Update(msg)
-		if f, ok := form.(*huh.Form); ok {
-			m.form = f
-
-			if m.form.State == huh.StateCompleted {
-				m.current = tui.ApplyFormResult(m.formRes, m.current)
-				m.state = stateView
-				return m, saveRecipeCmd(m.paths, m.current)
-			}
-			if m.form.State == huh.StateAborted {
-				m.state = stateView
-				return m, nil
-			}
-		}
-		return m, cmd
-	}
-
-	// Update list
 	if m.state == stateList {
 		var cmd tea.Cmd
 		m.list, cmd = m.list.Update(msg)
@@ -246,12 +188,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	return m, nil
-}
-
-func (m *model) showViewport() {
-	preview, _ := tui.RenderPreview(m.current)
-	m.viewport = viewport.New(m.width, m.height-3)
-	m.viewport.SetContent(preview)
 }
 
 func (m model) View() string {
@@ -263,26 +199,29 @@ func (m model) View() string {
 	case stateList:
 		return m.list.View()
 
-	case stateView:
-		help := tui.HelpStyle.Render("  [e] edit  [d] delete  [q/esc] back  [↑/↓] scroll")
-		return m.viewport.View() + "\n" + help
-
-	case stateEdit:
-		if m.form != nil {
-			return m.form.View()
-		}
-		return ""
-
-	case stateConfirmDelete:
+	case stateRate:
 		title := ""
+		currentRating := 0
 		if m.current != nil {
 			title = m.current.Recipe.Title
+			if m.current.Recipe.Ratings != nil {
+				if r, ok := m.current.Recipe.Ratings[strings.ToLower(m.user)]; ok {
+					currentRating = r
+				}
+			}
 		}
+
+		stars := strings.Repeat("★", currentRating) + strings.Repeat("☆", 5-currentRating)
+
 		style := lipgloss.NewStyle().Padding(1, 2)
 		return style.Render(
-			tui.Error.Render("Delete \""+title+"\"?") + "\n\n" +
-				"Press [y] to confirm, [n] to cancel",
+			tui.Title.Render(title)+"\n\n"+
+				"Current rating: "+tui.Accent.Render(stars)+"\n\n"+
+				"Press [1-5] to rate, [0] to clear, [esc] to cancel",
 		)
+
+	case stateDone:
+		return ""
 	}
 
 	return ""
@@ -316,10 +255,21 @@ func ensureAuth() string {
 }
 
 func main() {
-	_ = ensureAuth()
-	p := tea.NewProgram(initialModel(), tea.WithAltScreen())
-	if _, err := p.Run(); err != nil {
+	user := ensureAuth()
+	p := tea.NewProgram(initialModel(user), tea.WithAltScreen())
+	m, err := p.Run()
+	if err != nil {
 		fmt.Fprintln(os.Stderr, "Error:", err)
 		os.Exit(1)
+	}
+
+	if final, ok := m.(model); ok {
+		if final.err != nil {
+			fmt.Fprintln(os.Stderr, tui.Error.Render("Error: "+final.err.Error()))
+			os.Exit(1)
+		}
+		if final.saved != "" {
+			fmt.Println(tui.Success.Render("Rated: " + final.saved))
+		}
 	}
 }

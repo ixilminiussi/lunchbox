@@ -11,6 +11,7 @@ import (
 	"github.com/charmbracelet/huh"
 	"github.com/charmbracelet/lipgloss"
 
+	"lunchbox/internal/auth"
 	"lunchbox/internal/recipe"
 	"lunchbox/internal/scraper"
 	"lunchbox/internal/tui"
@@ -40,6 +41,7 @@ type recipeSaved struct {
 type model struct {
 	state    state
 	url      string
+	user     string
 	rf       *recipe.RecipeFile
 	formRes  *tui.FormResult
 	form     *huh.Form
@@ -53,7 +55,7 @@ type model struct {
 	height   int
 }
 
-func initialModel(url string) model {
+func initialModel(url string, user string) model {
 	s := spinner.New()
 	s.Spinner = spinner.Dot
 	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("212"))
@@ -63,6 +65,7 @@ func initialModel(url string) model {
 	return model{
 		state:   stateLoading,
 		url:     url,
+		user:    user,
 		spinner: s,
 		paths:   paths,
 		err:     err,
@@ -148,6 +151,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		}
 		m.rf = msg.rf
+		// Pre-fill AddedBy with logged-in user
+		m.rf.Recipe.AddedBy = m.user
 		m.formRes = tui.NewFormResult(m.rf)
 		m.form = tui.BuildForm(m.formRes)
 		m.state = stateForm
@@ -229,14 +234,44 @@ func (m model) View() string {
 	return ""
 }
 
+func ensureAuth() string {
+	user := auth.LoadUser()
+	if user != "" {
+		return user
+	}
+
+	// First-time setup: ask who they are
+	var selected string
+	form := huh.NewForm(
+		huh.NewGroup(
+			huh.NewSelect[string]().
+				Title("Who are you?").
+				Options(
+					huh.NewOption("Ixil", "Ixil"),
+					huh.NewOption("Mathilde", "Mathilde"),
+				).
+				Value(&selected),
+		),
+	)
+	if err := form.Run(); err != nil {
+		fmt.Fprintln(os.Stderr, "Error:", err)
+		os.Exit(1)
+	}
+	if err := auth.SaveUser(selected); err != nil {
+		fmt.Fprintln(os.Stderr, "Warning: could not save config:", err)
+	}
+	return selected
+}
+
 func main() {
 	if len(os.Args) < 2 {
 		fmt.Fprintln(os.Stderr, "Usage: go run ./cmd/import-recipe <url>")
 		os.Exit(1)
 	}
 
+	user := ensureAuth()
 	url := os.Args[1]
-	p := tea.NewProgram(initialModel(url), tea.WithAltScreen())
+	p := tea.NewProgram(initialModel(url, user), tea.WithAltScreen())
 	m, err := p.Run()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Error:", err)
