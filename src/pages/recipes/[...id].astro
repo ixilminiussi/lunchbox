@@ -1,0 +1,61 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import DietaryBadge from '../../components/DietaryBadge.astro';
+import TagBadge from '../../components/TagBadge.astro';
+import FavoriteButton from '../../components/FavoriteButton.tsx';
+import RatingStars from '../../components/RatingStars.tsx';
+import ServingsAdjuster from '../../components/ServingsAdjuster.tsx';
+import { inferDietary } from '../../lib/dietary';
+
+export async function getStaticPaths() {
+  const recipes = await getCollection('recipes');
+  return recipes.map((r) => ({ params: { id: r.id }, props: { recipe: r } }));
+}
+
+const { recipe } = Astro.props;
+const { Content } = await render(recipe);
+const dietary = inferDietary(recipe.data.ingredients);
+const d = recipe.data;
+---
+
+<BaseLayout title={`${d.title} — Lunchbox`}>
+  <div class="recipe-header">
+    <h1>{d.title}</h1>
+    <div class="recipe-meta">
+      <span>Prep {d.prep_time}</span>
+      <span>Cook {d.cook_time}</span>
+      <span>Serves {d.servings}</span>
+      <span>{d.difficulty}</span>
+      {d.cuisine && <span>{d.cuisine}</span>}
+      {d.added_by && <span>by {d.added_by}</span>}
+    </div>
+    <div class="recipe-badges">
+      {dietary.map((diet) => <DietaryBadge diet={diet} />)}
+    </div>
+    <div class="recipe-tags">
+      {d.tags.map((tag) => <TagBadge tag={tag} />)}
+    </div>
+    <div class="recipe-actions">
+      <FavoriteButton recipeId={recipe.id} client:load />
+      <RatingStars recipeId={recipe.id} client:load />
+    </div>
+  </div>
+
+  {d.image && <img class="recipe-image" src={d.image} alt={d.title} />}
+
+  <div class="recipe-body">
+    <aside class="recipe-ingredients">
+      <ServingsAdjuster client:load ingredients={d.ingredients} baseServings={d.servings} />
+    </aside>
+    <div class="recipe-instructions">
+      <Content />
+    </div>
+  </div>
+
+  {d.source && (
+    <p style="padding-bottom: 2rem; font-size: 0.85rem; color: var(--color-text-light);">
+      Source: <a href={d.source} target="_blank" rel="noopener">{d.source}</a>
+    </p>
+  )}
+</BaseLayout>

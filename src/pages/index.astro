@@ -1,0 +1,26 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import HomeFeeds from '../components/HomeFeeds.tsx';
+import { inferDietary } from '../lib/dietary';
+import { inferSeasons, getCurrentSeason } from '../lib/seasons';
+
+const recipes = await getCollection('recipes');
+const recipesWithMeta = recipes.map((r) => ({
+  id: r.id,
+  title: r.data.title,
+  image: r.data.image,
+  prep_time: r.data.prep_time,
+  cook_time: r.data.cook_time,
+  difficulty: r.data.difficulty,
+  dietary: inferDietary(r.data.ingredients),
+  date: r.data.date.toISOString(),
+  seasons: inferSeasons(r.data.ingredients),
+}));
+
+const currentSeason = getCurrentSeason();
+---
+
+<BaseLayout title="Lunchbox">
+  <HomeFeeds client:load recipes={recipesWithMeta} currentSeason={currentSeason} />
+</BaseLayout>

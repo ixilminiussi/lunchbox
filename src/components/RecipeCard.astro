@@ -1,0 +1,37 @@
+---
+import DietaryBadge from './DietaryBadge.astro';
+import type { Diet } from '../lib/dietary';
+
+interface Props {
+  id: string;
+  title: string;
+  image?: string;
+  prep_time: string;
+  cook_time: string;
+  difficulty: string;
+  dietary: Diet[];
+}
+
+const { id, title, image, prep_time, cook_time, difficulty, dietary } = Astro.props;
+---
+
+<article class="recipe-card" data-title={title.toLowerCase()}>
+  <a href={`/recipes/${id}`}>
+    {image ? (
+      <img class="recipe-card-image" src={image} alt={title} loading="lazy" />
+    ) : (
+      <div class="no-image">🍽</div>
+    )}
+    <div class="recipe-card-body">
+      <h3 class="recipe-card-title">{title}</h3>
+      <div class="recipe-card-meta">
+        <span>Prep {prep_time}</span>
+        <span>Cook {cook_time}</span>
+        <span>{difficulty}</span>
+      </div>
+      <div class="recipe-card-badges">
+        {dietary.map((d) => <DietaryBadge diet={d} />)}
+      </div>
+    </div>
+  </a>
+</article>

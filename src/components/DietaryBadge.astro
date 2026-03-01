@@ -1,0 +1,19 @@
+---
+interface Props {
+  diet: string;
+}
+
+const { diet } = Astro.props;
+
+const labels: Record<string, string> = {
+  vegan: 'Vegan',
+  vegetarian: 'Vegetarian',
+  'gluten-free': 'GF',
+  'dairy-free': 'DF',
+  'nut-free': 'NF',
+};
+
+const label = labels[diet] ?? diet;
+---
+
+<span class={`badge badge-${diet}`}>{label}</span>

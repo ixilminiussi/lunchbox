@@ -1,0 +1,44 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FilterIsland from '../components/FilterIsland.tsx';
+import { inferDietary, normalise } from '../lib/dietary';
+
+const recipes = await getCollection('recipes');
+const recipesData = recipes.map((r) => ({
+  id: r.id,
+  title: r.data.title,
+  image: r.data.image,
+  prep_time: r.data.prep_time,
+  cook_time: r.data.cook_time,
+  difficulty: r.data.difficulty,
+  cuisine: r.data.cuisine ?? '',
+  meal_type: r.data.meal_type,
+  tags: r.data.tags,
+  added_by: r.data.added_by,
+  dietary: inferDietary(r.data.ingredients),
+  ingredients: r.data.ingredients,
+}));
+
+// Collect unique values for filters
+const cuisines = [...new Set(recipesData.map((r) => r.cuisine).filter(Boolean))].sort();
+const mealTypes = [...new Set(recipesData.map((r) => r.meal_type))].sort();
+const allTags = [...new Set(recipesData.flatMap((r) => r.tags))].sort();
+const allDiets = [...new Set(recipesData.flatMap((r) => r.dietary))].sort();
+const authors = [...new Set(recipesData.map((r) => r.added_by))].sort();
+const allIngredientNames = [...new Set(recipesData.flatMap((r) => r.ingredients.map(normalise)).filter(Boolean))].sort();
+---
+
+<BaseLayout title="Browse — Lunchbox">
+  <h1 class="page-heading">Browse recipes</h1>
+  <FilterIsland
+    client:load
+    recipes={recipesData}
+    cuisines={cuisines}
+    mealTypes={mealTypes}
+    allTags={allTags}
+    allDiets={allDiets}
+    authors={authors}
+    allIngredientNames={allIngredientNames}
+  />
+</BaseLayout>
