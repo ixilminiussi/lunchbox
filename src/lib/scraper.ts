@@ -10,7 +10,7 @@ export interface ScrapedRecipe {
   source: string;
 }
 
-function parseISODuration(iso: string): string {
+export function parseISODuration(iso: string): string {
   if (!iso) return '0 min';
   const match = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
   if (!match) return iso;
@@ -26,20 +26,20 @@ function extractNumber(s: string): number {
   return m ? parseInt(m[0]) || 4 : 4;
 }
 
-function parseYield(val: any): number {
+export function parseYield(val: any): number {
   if (typeof val === 'number') return val;
   if (typeof val === 'string') return extractNumber(val);
   if (Array.isArray(val) && val.length > 0) return extractNumber(String(val[0]));
   return 4;
 }
 
-function parseCuisine(val: any): string {
+export function parseCuisine(val: any): string {
   if (typeof val === 'string') return val;
   if (Array.isArray(val) && val.length > 0) return String(val[0]);
   return '';
 }
 
-function parseImage(val: any): string {
+export function parseImage(val: any): string {
   if (typeof val === 'string') return val;
   if (Array.isArray(val) && val.length > 0) {
     const first = val[0];
@@ -50,7 +50,7 @@ function parseImage(val: any): string {
   return '';
 }
 
-function parseInstructions(val: any): string {
+export function parseInstructions(val: any): string {
   if (!val) return '';
 
   // Array of HowToStep objects

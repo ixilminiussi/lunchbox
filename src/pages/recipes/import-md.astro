@@ -1,14 +1,15 @@
 ---
-export const prerender = false;
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MarkdownImporter from '../../components/MarkdownImporter.tsx';
 import { getUser } from '../../lib/session';
 
-const user = getUser(Astro.request);
+const { SESSION_SECRET, IXIL_PASSWORD, MATHILDE_PASSWORD } = Astro.locals.runtime.env;
+const env = { SESSION_SECRET, IXIL_PASSWORD, MATHILDE_PASSWORD };
+const user = await getUser(Astro.request, env);
 if (!user) return Astro.redirect('/login');
 ---
 
-<BaseLayout title="Import Markdown — Lunchbox" currentUser={user}>
+<BaseLayout title="Import Markdown — Lunchbox">
   <h1 class="page-heading">Import from markdown</h1>
   <MarkdownImporter client:load />
 </BaseLayout>

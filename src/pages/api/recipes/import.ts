@@ -1,10 +1,12 @@
-export const prerender = false;
 import type { APIRoute } from 'astro';
 import { getUser } from '../../../lib/session';
 import { scrapeRecipe } from '../../../lib/scraper';
 
-export const POST: APIRoute = async ({ request }) => {
-  const user = getUser(request);
+export const POST: APIRoute = async ({ request, locals }) => {
+  const { SESSION_SECRET, IXIL_PASSWORD, MATHILDE_PASSWORD } = locals.runtime.env;
+  const env = { SESSION_SECRET, IXIL_PASSWORD, MATHILDE_PASSWORD };
+
+  const user = await getUser(request, env);
   if (!user) {
     return new Response('Unauthorized', { status: 401 });
   }

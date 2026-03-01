@@ -1,9 +1,5 @@
-import fs from 'node:fs';
-import path from 'node:path';
 import matter from 'gray-matter';
 import { marked } from 'marked';
-
-const RECIPES_DIR = path.resolve('src/data/recipes');
 
 export interface RecipeData {
   title: string;
@@ -29,10 +25,8 @@ export interface RecipeEntry {
   renderedHTML: string;
 }
 
-function parseRecipeFile(filePath: string): RecipeEntry {
-  const raw = fs.readFileSync(filePath, 'utf-8');
+export function parseRecipeContent(raw: string, id: string): RecipeEntry {
   const { data, content } = matter(raw);
-  const id = path.basename(filePath, '.md');
   const renderedHTML = marked.parse(content, { async: false }) as string;
 
   return {
@@ -58,26 +52,30 @@ function parseRecipeFile(filePath: string): RecipeEntry {
   };
 }
 
-export function getAllRecipes(): RecipeEntry[] {
-  if (!fs.existsSync(RECIPES_DIR)) return [];
-  const files = fs.readdirSync(RECIPES_DIR).filter((f) => f.endsWith('.md'));
-  return files.map((f) => parseRecipeFile(path.join(RECIPES_DIR, f)));
+export async function getAllRecipes(kv: KVNamespace): Promise<RecipeEntry[]> {
+  const list = await kv.list();
+  const entries: RecipeEntry[] = [];
+  for (const key of list.keys) {
+    const raw = await kv.get(key.name);
+    if (raw) entries.push(parseRecipeContent(raw, key.name));
+  }
+  return entries;
 }
 
-export function getRecipeById(id: string): RecipeEntry | undefined {
-  const filePath = path.join(RECIPES_DIR, `${id}.md`);
-  if (!fs.existsSync(filePath)) return undefined;
-  return parseRecipeFile(filePath);
+export async function getRecipeById(kv: KVNamespace, id: string): Promise<RecipeEntry | undefined> {
+  const raw = await kv.get(id);
+  if (!raw) return undefined;
+  return parseRecipeContent(raw, id);
 }
 
-function slugify(title: string): string {
+export function slugify(title: string): string {
   return title
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
 }
 
-function renderFrontmatter(data: RecipeData): string {
+export function renderFrontmatter(data: RecipeData): string {
   const lines: string[] = ['---'];
   lines.push(`title: ${JSON.stringify(data.title)}`);
   lines.push(`servings: ${data.servings}`);
@@ -105,34 +103,35 @@ function renderFrontmatter(data: RecipeData): string {
   return lines.join('\n');
 }
 
-export function saveRecipe(
+export function serializeRecipe(data: RecipeData, body: string): string {
+  return `${renderFrontmatter(data)}\n\n${body.trim()}\n`;
+}
+
+export async function saveRecipe(
+  kv: KVNamespace,
   id: string | null,
   data: RecipeData,
   body: string,
-): string {
+): Promise<string> {
   const slug = id ?? slugify(data.title);
-  const filePath = path.join(RECIPES_DIR, `${slug}.md`);
-  const content = `${renderFrontmatter(data)}\n\n${body.trim()}\n`;
-  fs.mkdirSync(RECIPES_DIR, { recursive: true });
-  fs.writeFileSync(filePath, content, 'utf-8');
+  const content = serializeRecipe(data, body);
+  await kv.put(slug, content);
   return slug;
 }
 
-export function deleteRecipe(id: string): void {
-  const filePath = path.join(RECIPES_DIR, `${id}.md`);
-  if (fs.existsSync(filePath)) {
-    fs.unlinkSync(filePath);
-  }
+export async function deleteRecipe(kv: KVNamespace, id: string): Promise<void> {
+  await kv.delete(id);
 }
 
-export function updateRating(
+export async function updateRating(
+  kv: KVNamespace,
   id: string,
   user: string,
   rating: number,
-): void {
-  const recipe = getRecipeById(id);
+): Promise<void> {
+  const recipe = await getRecipeById(kv, id);
   if (!recipe) throw new Error(`Recipe not found: ${id}`);
 
   recipe.data.ratings[user] = rating;
-  saveRecipe(id, recipe.data, recipe.body);
+  await saveRecipe(kv, id, recipe.data, recipe.body);
 }

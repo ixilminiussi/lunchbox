@@ -1,15 +1,16 @@
 ---
-export const prerender = false;
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getUser } from '../lib/session';
 
-const user = getUser(Astro.request);
+const { SESSION_SECRET, IXIL_PASSWORD, MATHILDE_PASSWORD } = Astro.locals.runtime.env;
+const env = { SESSION_SECRET, IXIL_PASSWORD, MATHILDE_PASSWORD };
+const user = await getUser(Astro.request, env);
 if (user) return Astro.redirect('/');
 
 const error = Astro.url.searchParams.has('error');
 ---
 
-<BaseLayout title="Login — Lunchbox" currentUser={null}>
+<BaseLayout title="Login — Lunchbox">
   <h1 class="page-heading">Login</h1>
   {error && <p class="login-error">Wrong password. Try again.</p>}
   <div class="login-row">

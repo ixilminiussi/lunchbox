@@ -1,10 +1,12 @@
-export const prerender = false;
 import type { APIRoute } from 'astro';
 import { getUser } from '../../../../lib/session';
 import { saveRecipe, deleteRecipe, getRecipeById, type RecipeData } from '../../../../lib/recipes';
 
-export const PUT: APIRoute = async ({ params, request }) => {
-  const user = getUser(request);
+export const PUT: APIRoute = async ({ params, request, locals }) => {
+  const { RECIPES: kv, SESSION_SECRET, IXIL_PASSWORD, MATHILDE_PASSWORD } = locals.runtime.env;
+  const env = { SESSION_SECRET, IXIL_PASSWORD, MATHILDE_PASSWORD };
+
+  const user = await getUser(request, env);
   if (!user) {
     return new Response('Unauthorized', { status: 401 });
   }
@@ -14,7 +16,7 @@ export const PUT: APIRoute = async ({ params, request }) => {
     return new Response('Missing recipe id', { status: 400 });
   }
 
-  const existing = getRecipeById(id);
+  const existing = await getRecipeById(kv, id);
   if (!existing) {
     return new Response('Recipe not found', { status: 404 });
   }
@@ -38,15 +40,18 @@ export const PUT: APIRoute = async ({ params, request }) => {
   };
 
   const instructions = body.instructions ?? existing.body;
-  saveRecipe(id, data, instructions);
+  await saveRecipe(kv, id, data, instructions);
 
   return new Response(JSON.stringify({ ok: true }), {
     headers: { 'Content-Type': 'application/json' },
   });
 };
 
-export const DELETE: APIRoute = async ({ params, request }) => {
-  const user = getUser(request);
+export const DELETE: APIRoute = async ({ params, request, locals }) => {
+  const { RECIPES: kv, SESSION_SECRET, IXIL_PASSWORD, MATHILDE_PASSWORD } = locals.runtime.env;
+  const env = { SESSION_SECRET, IXIL_PASSWORD, MATHILDE_PASSWORD };
+
+  const user = await getUser(request, env);
   if (!user) {
     return new Response('Unauthorized', { status: 401 });
   }
@@ -56,12 +61,8 @@ export const DELETE: APIRoute = async ({ params, request }) => {
     return new Response('Missing recipe id', { status: 400 });
   }
 
-  try {
-    deleteRecipe(id);
-    return new Response(JSON.stringify({ ok: true }), {
-      headers: { 'Content-Type': 'application/json' },
-    });
-  } catch (e: any) {
-    return new Response(e.message, { status: 404 });
-  }
+  await deleteRecipe(kv, id);
+  return new Response(JSON.stringify({ ok: true }), {
+    headers: { 'Content-Type': 'application/json' },
+  });
 };

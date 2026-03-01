@@ -1,10 +1,12 @@
-export const prerender = false;
 import type { APIRoute } from 'astro';
 import { getUser } from '../../../../lib/session';
 import { updateRating } from '../../../../lib/recipes';
 
-export const POST: APIRoute = async ({ params, request }) => {
-  const user = getUser(request);
+export const POST: APIRoute = async ({ params, request, locals }) => {
+  const { RECIPES: kv, SESSION_SECRET, IXIL_PASSWORD, MATHILDE_PASSWORD } = locals.runtime.env;
+  const env = { SESSION_SECRET, IXIL_PASSWORD, MATHILDE_PASSWORD };
+
+  const user = await getUser(request, env);
   if (!user) {
     return new Response('Unauthorized', { status: 401 });
   }
@@ -21,7 +23,7 @@ export const POST: APIRoute = async ({ params, request }) => {
   }
 
   try {
-    updateRating(id, user.toLowerCase(), rating);
+    await updateRating(kv, id, user.toLowerCase(), rating);
     return new Response(JSON.stringify({ ok: true }), {
       headers: { 'Content-Type': 'application/json' },
     });

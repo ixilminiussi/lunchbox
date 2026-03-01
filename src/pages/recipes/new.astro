@@ -1,14 +1,15 @@
 ---
-export const prerender = false;
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import RecipeForm from '../../components/RecipeForm.tsx';
 import { getUser } from '../../lib/session';
 
-const user = getUser(Astro.request);
+const { SESSION_SECRET, IXIL_PASSWORD, MATHILDE_PASSWORD } = Astro.locals.runtime.env;
+const env = { SESSION_SECRET, IXIL_PASSWORD, MATHILDE_PASSWORD };
+const user = await getUser(Astro.request, env);
 if (!user) return Astro.redirect('/login');
 ---
 
-<BaseLayout title="Add Recipe — Lunchbox" currentUser={user}>
+<BaseLayout title="Add Recipe — Lunchbox">
   <h1 class="page-heading">Add recipe</h1>
   <RecipeForm client:load mode="create" initial={{ title: '', servings: 4, prep_time: '', cook_time: '', cuisine: '', meal_type: 'dinner', difficulty: 'medium', tags: [], added_by: user, source: '', image: '', ingredients: '', instructions: '' }} />
 </BaseLayout>

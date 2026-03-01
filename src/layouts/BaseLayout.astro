@@ -1,13 +1,17 @@
 ---
 import '../styles/global.css';
 import ThemeToggle from '../components/ThemeToggle.tsx';
+import { getUser } from '../lib/session';
 
 interface Props {
   title?: string;
-  currentUser?: string | null;
 }
 
-const { title = 'Lunchbox', currentUser = null } = Astro.props;
+const { title = 'Lunchbox' } = Astro.props;
+
+const { SESSION_SECRET, IXIL_PASSWORD, MATHILDE_PASSWORD } = Astro.locals.runtime.env;
+const env = { SESSION_SECRET, IXIL_PASSWORD, MATHILDE_PASSWORD };
+const currentUser = await getUser(Astro.request, env);
 ---
 
 <!doctype html>

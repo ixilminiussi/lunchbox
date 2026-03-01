@@ -1,34 +1,29 @@
-export const prerender = false;
 import type { APIRoute } from 'astro';
-import fs from 'node:fs';
-import path from 'node:path';
 import JSZip from 'jszip';
 import { getUser } from '../../../lib/session';
+import { getAllRecipes, serializeRecipe } from '../../../lib/recipes';
 
-const RECIPES_DIR = path.resolve('src/data/recipes');
+export const GET: APIRoute = async ({ request, locals }) => {
+  const { RECIPES: kv, SESSION_SECRET, IXIL_PASSWORD, MATHILDE_PASSWORD } = locals.runtime.env;
+  const env = { SESSION_SECRET, IXIL_PASSWORD, MATHILDE_PASSWORD };
 
-export const GET: APIRoute = async ({ request }) => {
-  const user = getUser(request);
+  const user = await getUser(request, env);
   if (!user) {
     return new Response('Unauthorized', { status: 401 });
   }
 
-  if (!fs.existsSync(RECIPES_DIR)) {
-    return new Response('No recipes found', { status: 404 });
-  }
-
-  const files = fs.readdirSync(RECIPES_DIR).filter((f) => f.endsWith('.md'));
-  if (files.length === 0) {
+  const recipes = await getAllRecipes(kv);
+  if (recipes.length === 0) {
     return new Response('No recipes found', { status: 404 });
   }
 
   const zip = new JSZip();
-  for (const file of files) {
-    const content = fs.readFileSync(path.join(RECIPES_DIR, file), 'utf-8');
-    zip.file(file, content);
+  for (const recipe of recipes) {
+    const content = serializeRecipe(recipe.data, recipe.body);
+    zip.file(`${recipe.id}.md`, content);
   }
 
-  const buf = await zip.generateAsync({ type: 'nodebuffer' });
+  const buf = await zip.generateAsync({ type: 'uint8array' });
 
   return new Response(buf, {
     headers: {

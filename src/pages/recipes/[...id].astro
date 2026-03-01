@@ -4,20 +4,20 @@ import DietaryBadge from '../../components/DietaryBadge.astro';
 import TagBadge from '../../components/TagBadge.astro';
 import ServingsAdjuster from '../../components/ServingsAdjuster.tsx';
 import RatingDisplay from '../../components/RatingDisplay.tsx';
-import { getAllRecipes, getRecipeById } from '../../lib/recipes';
+import { getRecipeById } from '../../lib/recipes';
 import { inferDietary } from '../../lib/dietary';
+import { getUser } from '../../lib/session';
 
-export function getStaticPaths() {
-  return getAllRecipes().map((r) => ({ params: { id: r.id } }));
-}
+const { RECIPES: kv, SESSION_SECRET, IXIL_PASSWORD, MATHILDE_PASSWORD } = Astro.locals.runtime.env;
+const env = { SESSION_SECRET, IXIL_PASSWORD, MATHILDE_PASSWORD };
+const currentUser = await getUser(Astro.request, env);
 
 const { id } = Astro.params;
 if (!id) return Astro.redirect('/browse');
 
-const recipe = getRecipeById(id);
+const recipe = await getRecipeById(kv, id);
 if (!recipe) return Astro.redirect('/browse');
 
-const currentUser = null;
 const dietary = inferDietary(recipe.data.ingredients);
 const d = recipe.data;
 const authorClass = d.added_by?.toLowerCase() === 'mathilde' ? 'author-mathilde' : 'author-ixil';

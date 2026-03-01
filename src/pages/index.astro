@@ -5,7 +5,8 @@ import { getAllRecipes } from '../lib/recipes';
 import { inferDietary } from '../lib/dietary';
 import { inferSeasons, getCurrentSeason } from '../lib/seasons';
 
-const recipes = getAllRecipes();
+const { RECIPES: kv } = Astro.locals.runtime.env;
+const recipes = await getAllRecipes(kv);
 const recipesWithMeta = recipes.map((r) => ({
   id: r.id,
   title: r.data.title,

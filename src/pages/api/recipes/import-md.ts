@@ -1,11 +1,13 @@
-export const prerender = false;
 import type { APIRoute } from 'astro';
 import matter from 'gray-matter';
 import { getUser } from '../../../lib/session';
 import { saveRecipe } from '../../../lib/recipes';
 
-export const POST: APIRoute = async ({ request }) => {
-  const user = getUser(request);
+export const POST: APIRoute = async ({ request, locals }) => {
+  const { RECIPES: kv, SESSION_SECRET, IXIL_PASSWORD, MATHILDE_PASSWORD } = locals.runtime.env;
+  const env = { SESSION_SECRET, IXIL_PASSWORD, MATHILDE_PASSWORD };
+
+  const user = await getUser(request, env);
   if (!user) {
     return new Response('Unauthorized', { status: 401 });
   }
@@ -64,7 +66,7 @@ export const POST: APIRoute = async ({ request }) => {
     ingredients: Array.isArray(data.ingredients) ? data.ingredients : [],
   };
 
-  const id = saveRecipe(null, recipeData, content);
+  const id = await saveRecipe(kv, null, recipeData, content);
 
   return new Response(JSON.stringify({ id }), {
     headers: { 'Content-Type': 'application/json' },
