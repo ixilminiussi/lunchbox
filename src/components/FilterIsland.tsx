@@ -104,7 +104,7 @@ export default function FilterIsland({
       if (selectedCuisines.size > 0 && !selectedCuisines.has(r.cuisine)) return false;
       if (selectedMealTypes.size > 0 && !selectedMealTypes.has(r.meal_type)) return false;
       if (selectedTags.size > 0 && !r.tags.some((t) => selectedTags.has(t))) return false;
-      if (selectedDiets.size > 0 && !r.dietary.some((d) => selectedDiets.has(d))) return false;
+      if (selectedDiets.size > 0 && ![...selectedDiets].every((d) => r.dietary.includes(d))) return false;
       if (selectedAuthors.size > 0 && !selectedAuthors.has(r.added_by)) return false;
       if (search && !r.title.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
