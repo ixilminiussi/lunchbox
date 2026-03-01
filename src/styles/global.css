@@ -163,12 +163,14 @@ main.container {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s, clip-path 0.15s;
 }
 .recipe-card:hover {
   border-color: var(--color-text-light);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  clip-path: polygon(0 0, 100% 0, 100% 0, 100% 100%, 0 100%);
 }
 .recipe-grid > .recipe-card {
   animation: cardIn 0.25s ease-out both;
