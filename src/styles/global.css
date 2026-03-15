@@ -754,6 +754,7 @@ main.container {
   gap: 1.5rem;
   padding: 2rem 0;
   justify-content: center;
+  flex-wrap: wrap;
 }
 .login-card {
   border: 1px solid var(--color-border);
