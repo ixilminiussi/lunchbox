@@ -307,6 +307,9 @@ main.container {
   .recipe-body {
     grid-template-columns: 1fr;
   }
+  .recipe-ingredients {
+    position: static;
+  }
 }
 .recipe-ingredients {
   border: 1px solid var(--color-border);
