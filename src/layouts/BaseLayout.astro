@@ -42,6 +42,11 @@ const currentUser = await getUser(Astro.request, env);
           <li><a href="/browse">Browse</a></li>
           {currentUser ? (
             <li class="nav-user">
+              <img
+                src={currentUser.toLowerCase() === 'mathilde' ? '/images/mathilde-mii.png' : '/images/ixil-mii.png'}
+                alt={currentUser}
+                class="nav-mii"
+              />
               <span class={currentUser.toLowerCase() === 'mathilde' ? 'author-mathilde' : 'author-ixil'}>
                 {currentUser}
               </span>

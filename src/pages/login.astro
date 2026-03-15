@@ -16,12 +16,14 @@ const error = Astro.url.searchParams.has('error');
   <div class="login-row">
     <form class="login-card" method="POST" action="/api/auth/login">
       <input type="hidden" name="username" value="Ixil" />
+      <img src="/images/ixil-mii.png" alt="Ixil" class="login-mii" />
       <h2 class="author-ixil">Ixil</h2>
       <input type="password" name="password" placeholder="Password" class="search-input" required />
       <button type="submit" class="manage-btn">Login</button>
     </form>
     <form class="login-card" method="POST" action="/api/auth/login">
       <input type="hidden" name="username" value="Mathilde" />
+      <img src="/images/mathilde-mii.png" alt="Mathilde" class="login-mii" />
       <h2 class="author-mathilde">Mathilde</h2>
       <input type="password" name="password" placeholder="Password" class="search-input" required />
       <button type="submit" class="manage-btn">Login</button>

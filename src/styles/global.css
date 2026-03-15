@@ -769,6 +769,13 @@ main.container {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
+.login-mii {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  align-self: center;
+}
 .login-card h2 {
   font-size: 1rem;
   text-align: center;
@@ -780,6 +787,12 @@ main.container {
 }
 
 /* Nav Auth */
+.nav-mii {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
 .nav-user {
   display: flex;
   align-items: center;
