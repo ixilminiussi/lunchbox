@@ -45,8 +45,27 @@ export default function RecipeForm({ mode, recipeId, initial }: Props) {
   const [image, setImage] = useState(initial?.image ?? '');
   const [ingredients, setIngredients] = useState(initial?.ingredients ?? '');
   const [instructions, setInstructions] = useState(initial?.instructions ?? '');
+  const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+
+  const handleImageUpload = async (file: File) => {
+    setUploading(true);
+    try {
+      const form = new FormData();
+      form.append('file', file);
+      const res = await fetch('/api/images/upload', { method: 'POST', body: form });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Image upload failed');
+      } else {
+        setImage(data.url);
+      }
+    } catch (e: any) {
+      setError(e.message);
+    }
+    setUploading(false);
+  };
 
   const toggleTag = (tag: string) => {
     setSelectedTags((prev) => {
@@ -204,8 +223,17 @@ export default function RecipeForm({ mode, recipeId, initial }: Props) {
             <input type="url" value={source} onInput={(e) => setSource((e.target as HTMLInputElement).value)} />
           </label>
           <label>
-            Image URL
-            <input type="text" value={image} onInput={(e) => setImage((e.target as HTMLInputElement).value)} />
+            Image
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = (e.target as HTMLInputElement).files?.[0];
+                if (file) handleImageUpload(file);
+              }}
+            />
+            {uploading && <span>Uploading...</span>}
+            <input type="text" placeholder="Or paste image URL" value={image} onInput={(e) => setImage((e.target as HTMLInputElement).value)} />
           </label>
         </div>
       </fieldset>
