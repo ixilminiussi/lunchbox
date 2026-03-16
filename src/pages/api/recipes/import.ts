@@ -2,8 +2,29 @@ import type { APIRoute } from 'astro';
 import { getUser } from '../../../lib/session';
 import { scrapeRecipe } from '../../../lib/scraper';
 
+async function rehostedImageUrl(imageUrl: string, r2: R2Bucket): Promise<string> {
+  if (!imageUrl) return '';
+  try {
+    const res = await fetch(imageUrl);
+    if (!res.ok) return '';
+    const contentType = res.headers.get('Content-Type') || 'image/jpeg';
+    const extMap: Record<string, string> = {
+      'image/jpeg': 'jpg', 'image/png': 'png', 'image/gif': 'gif',
+      'image/webp': 'webp', 'image/avif': 'avif',
+    };
+    const ext = extMap[contentType] || 'jpg';
+    const key = `${crypto.randomUUID()}.${ext}`;
+    await r2.put(key, await res.arrayBuffer(), {
+      httpMetadata: { contentType },
+    });
+    return `/api/images/${key}`;
+  } catch {
+    return '';
+  }
+}
+
 export const POST: APIRoute = async ({ request, locals }) => {
-  const { SESSION_SECRET, IXIL_PASSWORD, MATHILDE_PASSWORD } = locals.runtime.env;
+  const { IMAGES: r2, SESSION_SECRET, IXIL_PASSWORD, MATHILDE_PASSWORD } = locals.runtime.env;
   const env = { SESSION_SECRET, IXIL_PASSWORD, MATHILDE_PASSWORD };
 
   const user = await getUser(request, env);
@@ -19,6 +40,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   try {
     const recipe = await scrapeRecipe(url);
+    if (recipe.image) {
+      recipe.image = await rehostedImageUrl(recipe.image, r2);
+    }
     return new Response(JSON.stringify(recipe), {
       headers: { 'Content-Type': 'application/json' },
     });

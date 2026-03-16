@@ -44,7 +44,15 @@ export default function RecipeForm({ mode, recipeId, initial }: Props) {
   const [source, setSource] = useState(initial?.source ?? '');
   const [image, setImage] = useState(initial?.image ?? '');
   const [ingredients, setIngredients] = useState(initial?.ingredients ?? '');
-  const [instructions, setInstructions] = useState(initial?.instructions ?? '');
+  const [instructions, setInstructions] = useState<string[]>(() => {
+    const raw = initial?.instructions ?? '';
+    if (!raw.trim()) return Array(5).fill('');
+    // Split on numbered step patterns like "1. ", "2. " etc.
+    const steps = raw.split(/\n*\d+\.\s+/).filter(Boolean).map((s) => s.trim());
+    if (steps.length === 0) return Array(5).fill('');
+    while (steps.length < 5) steps.push('');
+    return steps;
+  });
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -91,11 +99,12 @@ export default function RecipeForm({ mode, recipeId, initial }: Props) {
       .filter(Boolean);
 
     // Format instructions as markdown with numbered steps
-    let instructionsBody = instructions.trim();
-    // If not already formatted as numbered steps, just use as-is
-    if (!instructionsBody.startsWith('## ')) {
-      instructionsBody = `## Instructions\n\n${instructionsBody}`;
-    }
+    const stepsText = instructions
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .map((s, i) => `${i + 1}. ${s}`)
+      .join('\n\n');
+    const instructionsBody = `## Instructions\n\n${stepsText}`;
 
     const payload = {
       title: title.trim(),
@@ -250,12 +259,38 @@ export default function RecipeForm({ mode, recipeId, initial }: Props) {
 
       <fieldset>
         <legend>Instructions</legend>
-        <textarea
-          rows={12}
-          placeholder="Numbered steps, e.g.:\n1. First step\n\n2. Second step"
-          value={instructions}
-          onInput={(e) => setInstructions((e.target as HTMLTextAreaElement).value)}
-        />
+        {instructions.map((step, i) => (
+          <div key={i} class="recipe-form__instruction-row">
+            <span class="recipe-form__step-number">{i + 1}.</span>
+            <textarea
+              rows={2}
+              placeholder={`Step ${i + 1}`}
+              value={step}
+              onInput={(e) => {
+                const next = [...instructions];
+                next[i] = (e.target as HTMLTextAreaElement).value;
+                setInstructions(next);
+              }}
+            />
+            {instructions.length > 1 && (
+              <button
+                type="button"
+                class="recipe-form__remove-btn"
+                onClick={() => setInstructions(instructions.filter((_, j) => j !== i))}
+                title="Remove step"
+              >
+                &times;
+              </button>
+            )}
+          </div>
+        ))}
+        <button
+          type="button"
+          class="recipe-form__add-btn"
+          onClick={() => setInstructions([...instructions, ''])}
+        >
+          + Add step
+        </button>
       </fieldset>
 
       <button type="submit" class="manage-btn" disabled={saving}>
