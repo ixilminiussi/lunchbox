@@ -11,5 +11,5 @@ if (!user) return Astro.redirect('/login');
 
 <BaseLayout title="Add Recipe — Lunchbox">
   <h1 class="page-heading">Add recipe</h1>
-  <RecipeForm client:load mode="create" initial={{ title: '', servings: 4, prep_time: '', cook_time: '', cuisine: '', meal_type: 'dinner', difficulty: 'medium', tags: [], added_by: user, source: '', image: '', ingredients: '', instructions: '' }} />
+  <RecipeForm client:load mode="create" initial={{ title: '', servings: 4, prep_time: '', cook_time: '', cuisine: '', meal_type: 'dinner', difficulty: 'medium', tags: [], added_by: user, source: '', image: '', ingredients: [], instructions: [] }} />
 </BaseLayout>

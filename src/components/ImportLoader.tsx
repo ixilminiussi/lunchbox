@@ -54,8 +54,11 @@ export default function ImportLoader({ currentUser }: Props) {
           added_by: currentUser,
           source: imported.source,
           image: imported.image,
-          ingredients: imported.ingredients.join('\n'),
-          instructions: imported.instructions,
+          ingredients: imported.ingredients,
+          instructions: (imported.instructions as string)
+            .split(/\n*\d+\.\s+/)
+            .filter(Boolean)
+            .map((s: string) => s.trim()),
         }}
       />
     );

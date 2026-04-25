@@ -26,8 +26,8 @@ interface Props {
     added_by: string;
     source: string;
     image: string;
-    ingredients: string;
-    instructions: string;
+    ingredients: string[];
+    instructions: string[];
   };
 }
 
@@ -43,13 +43,9 @@ export default function RecipeForm({ mode, recipeId, initial }: Props) {
   const [addedBy, setAddedBy] = useState(initial?.added_by ?? 'Ixil');
   const [source, setSource] = useState(initial?.source ?? '');
   const [image, setImage] = useState(initial?.image ?? '');
-  const [ingredients, setIngredients] = useState(initial?.ingredients ?? '');
+  const [ingredients, setIngredients] = useState(() => (initial?.ingredients ?? []).join('\n'));
   const [instructions, setInstructions] = useState<string[]>(() => {
-    const raw = initial?.instructions ?? '';
-    if (!raw.trim()) return Array(5).fill('');
-    // Split on numbered step patterns like "1. ", "2. " etc.
-    const steps = raw.split(/\n*\d+\.\s+/).filter(Boolean).map((s) => s.trim());
-    if (steps.length === 0) return Array(5).fill('');
+    const steps = [...(initial?.instructions ?? [])];
     while (steps.length < 5) steps.push('');
     return steps;
   });

@@ -17,11 +17,14 @@ if (!recipe) return Astro.redirect('/browse');
 
 const d = recipe.data;
 
-// Extract raw instruction text from body (strip the "## Instructions" header)
+// Extract and parse instructions from body into steps array
 let rawInstructions = recipe.body.trim();
 if (rawInstructions.startsWith('## Instructions')) {
   rawInstructions = rawInstructions.replace(/^## Instructions\s*\n*/, '').trim();
 }
+const instructionSteps = rawInstructions
+  ? rawInstructions.split(/\n*\d+\.\s+/).filter(Boolean).map((s) => s.trim())
+  : [];
 ---
 
 <BaseLayout title={`Edit ${d.title} — Lunchbox`}>
@@ -42,8 +45,8 @@ if (rawInstructions.startsWith('## Instructions')) {
       added_by: d.added_by,
       source: d.source ?? '',
       image: d.image ?? '',
-      ingredients: d.ingredients.join('\n'),
-      instructions: rawInstructions,
+      ingredients: d.ingredients,
+      instructions: instructionSteps,
     }}
   />
 </BaseLayout>
