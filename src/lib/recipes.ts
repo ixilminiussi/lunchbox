@@ -57,7 +57,13 @@ export async function getAllRecipes(kv: KVNamespace): Promise<RecipeEntry[]> {
   const entries: RecipeEntry[] = [];
   for (const key of list.keys) {
     const raw = await kv.get(key.name);
-    if (raw) entries.push(parseRecipeContent(raw, key.name));
+    if (raw) {
+      try {
+        entries.push(parseRecipeContent(raw, key.name));
+      } catch {
+        // skip malformed recipe rather than crashing all pages
+      }
+    }
   }
   return entries;
 }
@@ -84,7 +90,7 @@ export function renderFrontmatter(data: RecipeData): string {
   if (data.cuisine) lines.push(`cuisine: ${JSON.stringify(data.cuisine)}`);
   lines.push(`meal_type: ${data.meal_type}`);
   lines.push(`difficulty: ${data.difficulty}`);
-  lines.push(`tags: [${data.tags.join(', ')}]`);
+  lines.push(`tags: [${data.tags.map((t) => JSON.stringify(t)).join(', ')}]`);
   lines.push(`date: ${data.date}`);
   lines.push(`added_by: ${data.added_by}`);
   if (data.source) lines.push(`source: ${JSON.stringify(data.source)}`);
@@ -97,7 +103,7 @@ export function renderFrontmatter(data: RecipeData): string {
   }
   lines.push('ingredients:');
   for (const ing of data.ingredients) {
-    lines.push(`  - ${ing}`);
+    lines.push(`  - ${JSON.stringify(ing)}`);
   }
   lines.push('---');
   return lines.join('\n');
