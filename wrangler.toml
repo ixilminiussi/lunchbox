@@ -6,6 +6,10 @@ compatibility_flags = ["nodejs_compat"]
 binding = "RECIPES"
 id = "48ce101e61894a1ca98ad0f523db26f3"
 
+[[kv_namespaces]]
+binding = "SESSION"
+id = "48ce101e61894a1ca98ad0f523db26f3"
+
 [[r2_buckets]]
 binding = "IMAGES"
 bucket_name = "lunchbox-images"

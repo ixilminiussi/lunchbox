@@ -30,7 +30,7 @@ const instructionSteps = rawInstructions
 <BaseLayout title={`Edit ${d.title} — Lunchbox`}>
   <h1 class="page-heading">Edit: {d.title}</h1>
   <RecipeForm
-    client:load
+    client:only="preact"
     mode="edit"
     recipeId={id}
     initial={{
