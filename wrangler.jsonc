@@ -8,5 +8,11 @@
       "binding": "RECIPES",
       "id": "48ce101e61894a1ca98ad0f523db26f3"
     }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "IMAGES",
+      "bucket_name": "lunchbox-images"
+    }
   ]
 }
