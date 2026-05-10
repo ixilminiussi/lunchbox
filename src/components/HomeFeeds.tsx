@@ -1,4 +1,3 @@
-import { useMemo } from 'preact/hooks';
 import type { Season } from '../lib/seasons';
 
 interface RecipeData {
@@ -10,25 +9,18 @@ interface RecipeData {
   difficulty: string;
   added_by: string;
   dietary: string[];
-  date: string; // ISO string
+  date: string;
   seasons: Season[];
   ratings: Record<string, number>;
 }
 
 interface Props {
-  recipes: RecipeData[];
+  luckyRecipe: RecipeData | null;
+  recentlyAdded: RecipeData[];
+  seasonalPicks: RecipeData[];
+  ixilList: RecipeData[];
+  mathildeList: RecipeData[];
   currentSeason: Season;
-}
-
-const USERS = ['ixil', 'mathilde'] as const;
-
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
 }
 
 const SEASON_LABEL: Record<Season, string> = {
@@ -95,46 +87,7 @@ function FeedRow({ title, recipes }: { title: string; recipes: RecipeData[] }) {
   );
 }
 
-export default function HomeFeeds({ recipes, currentSeason }: Props) {
-  const luckyRecipe = useMemo(() => {
-    if (recipes.length === 0) return null;
-    return recipes[Math.floor(Math.random() * recipes.length)];
-  }, [recipes]);
-
-  const recentlyAdded = useMemo(() => {
-    return [...recipes]
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      .slice(0, 8);
-  }, [recipes]);
-
-  const seasonalPicks = useMemo(() => {
-    return shuffle(
-      recipes.filter((r) => {
-        if (!r.seasons.includes(currentSeason)) return false;
-        const ixilRating = r.ratings?.['ixil'];
-        const mathildeRating = r.ratings?.['mathilde'];
-        return ixilRating !== undefined && ixilRating >= 4
-          && mathildeRating !== undefined && mathildeRating >= 4;
-      })
-    );
-  }, [recipes, currentSeason]);
-
-  const ixilList = useMemo(() => {
-    return shuffle(
-      recipes
-        .filter((r) => r.ratings?.['ixil'] !== undefined)
-        .sort((a, b) => (b.ratings?.['ixil'] || 0) - (a.ratings?.['ixil'] || 0))
-    ).slice(0, 8);
-  }, [recipes]);
-
-  const mathildeList = useMemo(() => {
-    return shuffle(
-      recipes
-        .filter((r) => r.ratings?.['mathilde'] !== undefined)
-        .sort((a, b) => (b.ratings?.['mathilde'] || 0) - (a.ratings?.['mathilde'] || 0))
-    ).slice(0, 8);
-  }, [recipes]);
-
+export default function HomeFeeds({ luckyRecipe, recentlyAdded, seasonalPicks, ixilList, mathildeList, currentSeason }: Props) {
   return (
     <div class="home-feeds">
       {luckyRecipe && (

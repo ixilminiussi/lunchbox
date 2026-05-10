@@ -5,9 +5,20 @@ import { getAllRecipes } from '../lib/recipes';
 import { inferDietary } from '../lib/dietary';
 import { inferSeasons, getCurrentSeason } from '../lib/seasons';
 
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 const { RECIPES: kv } = Astro.locals.runtime.env;
 const recipes = await getAllRecipes(kv);
-const recipesWithMeta = recipes.map((r) => ({
+const currentSeason = getCurrentSeason();
+
+const all = recipes.map((r) => ({
   id: r.id,
   title: r.data.title,
   image: r.data.image,
@@ -21,9 +32,39 @@ const recipesWithMeta = recipes.map((r) => ({
   ratings: r.data.ratings ?? {},
 }));
 
-const currentSeason = getCurrentSeason();
+const luckyRecipe = all.length > 0 ? all[Math.floor(Math.random() * all.length)] : null;
+
+const recentlyAdded = [...all]
+  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+  .slice(0, 8);
+
+const seasonalPicks = shuffle(
+  all.filter((r) => {
+    if (!r.seasons.includes(currentSeason)) return false;
+    return r.ratings?.['ixil'] !== undefined && r.ratings['ixil'] >= 4
+      && r.ratings?.['mathilde'] !== undefined && r.ratings['mathilde'] >= 4;
+  })
+);
+
+const ixilList = shuffle(
+  [...all].filter((r) => r.ratings?.['ixil'] !== undefined)
+    .sort((a, b) => (b.ratings?.['ixil'] || 0) - (a.ratings?.['ixil'] || 0))
+).slice(0, 8);
+
+const mathildeList = shuffle(
+  [...all].filter((r) => r.ratings?.['mathilde'] !== undefined)
+    .sort((a, b) => (b.ratings?.['mathilde'] || 0) - (a.ratings?.['mathilde'] || 0))
+).slice(0, 8);
 ---
 
 <BaseLayout title="Lunchbox">
-  <HomeFeeds client:load recipes={recipesWithMeta} currentSeason={currentSeason} />
+  <HomeFeeds
+    client:load
+    luckyRecipe={luckyRecipe}
+    recentlyAdded={recentlyAdded}
+    seasonalPicks={seasonalPicks}
+    ixilList={ixilList}
+    mathildeList={mathildeList}
+    currentSeason={currentSeason}
+  />
 </BaseLayout>
