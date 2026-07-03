@@ -302,35 +302,82 @@ export default function FilterIsland({
                   )
                 )}
                 <div class="recipe-card-body">
-                  <h3 class="recipe-card-title">{r.title}</h3>
-                  <div class="recipe-card-meta">
-                    <span>Prep {r.prep_time}</span>
-                    <span>Cook {r.cook_time}</span>
-                    <span>{r.difficulty}</span>
-                  </div>
-                  {r.added_by && (
-                    <span class={`recipe-card-author ${r.added_by.toLowerCase() === 'mathilde' ? 'author-mathilde' : 'author-ixil'}`}>
-                      {r.added_by}
-                    </span>
-                  )}
-                  <div class="recipe-card-badges">
-                    {r.dietary.map((d) => (
-                      <span key={d} class={`badge badge-${d}`}>
-                        {d === 'gluten-free' ? 'GF' : d === 'dairy-free' ? 'DF' : d === 'nut-free' ? 'NF' : d}
-                      </span>
-                    ))}
-                  </div>
-                  {(r.ratings?.ixil !== undefined || r.ratings?.mathilde !== undefined) && (
-                    <span class="rating-compact">
-                      {r.ratings?.ixil !== undefined && <span class="author-ixil">I:{r.ratings.ixil}</span>}
-                      {r.ratings?.ixil !== undefined && r.ratings?.mathilde !== undefined && ' '}
-                      {r.ratings?.mathilde !== undefined && <span class="author-mathilde">M:{r.ratings.mathilde}</span>}
-                    </span>
-                  )}
-                  {showMatchBadges && (
-                    <span class={`match-badge ${matchClass}`}>
-                      {matchCount}/{totalSelected} ingredients
-                    </span>
+                  {viewMode === 'row' ? (
+                    <>
+                      <div class="recipe-card-row-line">
+                        <div class="recipe-card-row-line-left">
+                          <h3 class="recipe-card-title">{r.title}</h3>
+                          {r.added_by && (
+                            <span class={`recipe-card-author ${r.added_by.toLowerCase() === 'mathilde' ? 'author-mathilde' : 'author-ixil'}`}>
+                              {r.added_by}
+                            </span>
+                          )}
+                        </div>
+                        <div class="recipe-card-row-line-right">
+                          <div class="recipe-card-badges">
+                            {r.dietary.map((d) => (
+                              <span key={d} class={`badge badge-${d}`}>
+                                {d === 'gluten-free' ? 'GF' : d === 'dairy-free' ? 'DF' : d === 'nut-free' ? 'NF' : d}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                      <div class="recipe-card-row-line">
+                        <div class="recipe-card-row-line-left recipe-card-meta">
+                          <span>Prep {r.prep_time}</span>
+                          <span>Cook {r.cook_time}</span>
+                          <span>{r.difficulty}</span>
+                        </div>
+                        <div class="recipe-card-row-line-right">
+                          {(r.ratings?.ixil !== undefined || r.ratings?.mathilde !== undefined) && (
+                            <span class="rating-compact">
+                              {r.ratings?.ixil !== undefined && <span class="author-ixil">I:{r.ratings.ixil}</span>}
+                              {r.ratings?.ixil !== undefined && r.ratings?.mathilde !== undefined && ' '}
+                              {r.ratings?.mathilde !== undefined && <span class="author-mathilde">M:{r.ratings.mathilde}</span>}
+                            </span>
+                          )}
+                          {showMatchBadges && (
+                            <span class={`match-badge ${matchClass}`}>
+                              {matchCount}/{totalSelected} ingredients
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <h3 class="recipe-card-title">{r.title}</h3>
+                      <div class="recipe-card-meta">
+                        <span>Prep {r.prep_time}</span>
+                        <span>Cook {r.cook_time}</span>
+                        <span>{r.difficulty}</span>
+                      </div>
+                      {r.added_by && (
+                        <span class={`recipe-card-author ${r.added_by.toLowerCase() === 'mathilde' ? 'author-mathilde' : 'author-ixil'}`}>
+                          {r.added_by}
+                        </span>
+                      )}
+                      <div class="recipe-card-badges">
+                        {r.dietary.map((d) => (
+                          <span key={d} class={`badge badge-${d}`}>
+                            {d === 'gluten-free' ? 'GF' : d === 'dairy-free' ? 'DF' : d === 'nut-free' ? 'NF' : d}
+                          </span>
+                        ))}
+                      </div>
+                      {(r.ratings?.ixil !== undefined || r.ratings?.mathilde !== undefined) && (
+                        <span class="rating-compact">
+                          {r.ratings?.ixil !== undefined && <span class="author-ixil">I:{r.ratings.ixil}</span>}
+                          {r.ratings?.ixil !== undefined && r.ratings?.mathilde !== undefined && ' '}
+                          {r.ratings?.mathilde !== undefined && <span class="author-mathilde">M:{r.ratings.mathilde}</span>}
+                        </span>
+                      )}
+                      {showMatchBadges && (
+                        <span class={`match-badge ${matchClass}`}>
+                          {matchCount}/{totalSelected} ingredients
+                        </span>
+                      )}
+                    </>
                   )}
                 </div>
               </article>
