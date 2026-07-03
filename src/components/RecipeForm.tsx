@@ -7,7 +7,7 @@ const TAG_CATEGORIES = [
   { name: 'Atmosphere / Occasion', tags: ['cozy', 'festive', 'fine-dining', 'street-food', 'luxurious'] },
   { name: 'Flavor / Intensity', tags: ['light', 'bold', 'hearty', 'fresh', 'spicy'] },
   { name: 'Temperature', tags: ['warm', 'cold'] },
-  { name: 'Technique / Format', tags: ['barbecue', 'baked', 'fried', 'air-fried', 'slow-cooked', 'raw', 'one-pot', 'shareable', 'portable', 'plated'] },
+  { name: 'Technique / Format', tags: ['barbecue', 'baked', 'fried', 'air-fried', 'slow-cooked', 'raw', 'one-pot', 'shareable', 'portable', 'plated', 'dip', 'soup'] },
   { name: 'Conservation / Shelf-life', tags: ['freezer-friendly', 'make-ahead', 'best-fresh'] },
 ];
 
