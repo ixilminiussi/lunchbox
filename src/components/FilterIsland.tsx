@@ -130,6 +130,8 @@ export default function FilterIsland({
 
   const showMatchBadges = fridgeMode && selectedIngredients.size > 0;
 
+  const [viewMode, setViewMode] = useState<'grid' | 'row'>('grid');
+
   return (
     <div>
       <div class="filter-bar">
@@ -265,7 +267,22 @@ export default function FilterIsland({
         )}
       </div>
 
-      <div class="recipe-grid">
+      <div class="view-toggle">
+        <button
+          class={viewMode === 'grid' ? 'view-toggle-active' : ''}
+          onClick={() => setViewMode('grid')}
+        >
+          ▦ Grid
+        </button>
+        <button
+          class={viewMode === 'row' ? 'view-toggle-active' : ''}
+          onClick={() => setViewMode('row')}
+        >
+          ☰ Rows
+        </button>
+      </div>
+
+      <div class={`recipe-grid ${viewMode === 'row' ? 'recipe-grid-rows' : ''}`}>
         {filtered.length === 0 && <p style="color: var(--color-text-light);">No recipes match your filters.</p>}
         {filtered.map((r) => {
           const matchCount = showMatchBadges ? countMatches(r.ingredients, selectedIngredients) : 0;
@@ -277,10 +294,12 @@ export default function FilterIsland({
           return (
             <a key={r.id} href={`/recipes/${r.id}`} style="text-decoration: none; color: inherit;">
               <article class="recipe-card">
-                {r.image ? (
-                  <img class="recipe-card-image" src={r.image} alt={r.title} loading="lazy" />
-                ) : (
-                  <div class="no-image">🍽</div>
+                {viewMode === 'grid' && (
+                  r.image ? (
+                    <img class="recipe-card-image" src={r.image} alt={r.title} loading="lazy" />
+                  ) : (
+                    <div class="no-image">🍽</div>
+                  )
                 )}
                 <div class="recipe-card-body">
                   <h3 class="recipe-card-title">{r.title}</h3>
