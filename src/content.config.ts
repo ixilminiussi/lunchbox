@@ -17,6 +17,17 @@ const recipes = defineCollection({
     image: z.string().optional(),
     ratings: z.record(z.string(), z.number()).optional().default({}),
     ingredients: z.array(z.string()),
+    notes: z
+      .array(
+        z.object({
+          id: z.string(),
+          step: z.number(),
+          user: z.string(),
+          text: z.string(),
+        }),
+      )
+      .optional()
+      .default([]),
     date: z.coerce.date().optional().default(new Date('2025-01-01')),
   }),
 });

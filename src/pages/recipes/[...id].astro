@@ -21,6 +21,52 @@ if (!recipe) return Astro.redirect('/browse');
 const dietary = inferDietary(recipe.data.ingredients);
 const d = recipe.data;
 const authorClass = d.added_by?.toLowerCase() === 'mathilde' ? 'author-mathilde' : 'author-ixil';
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function avatarSrc(user: string): string {
+  return user.toLowerCase() === 'mathilde' ? '/images/mathilde-mii.png' : '/images/ixil-mii.png';
+}
+
+function renderNoteSlot(step: number): string {
+  const stepNotes = d.notes.filter((n) => n.step === step);
+  const bubbles = stepNotes
+    .map((note) => {
+      const isOwner = currentUser?.toLowerCase() === note.user.toLowerCase();
+      return `<span class="instruction-note" data-note-id="${note.id}">
+        <img class="instruction-note-avatar" src="${avatarSrc(note.user)}" alt="${escapeHtml(note.user)}" />
+        <span class="instruction-note-bubble">
+          <span class="instruction-note-text">${escapeHtml(note.text)}</span>
+          ${isOwner ? `<span class="instruction-note-actions">
+            <button type="button" class="instruction-note-edit" data-note-id="${note.id}" data-text="${escapeHtml(note.text)}">edit</button>
+            <button type="button" class="instruction-note-delete" data-note-id="${note.id}">delete</button>
+          </span>` : ''}
+        </span>
+      </span>`;
+    })
+    .join('');
+
+  const hasOwnNote = currentUser && stepNotes.some((n) => n.user.toLowerCase() === currentUser!.toLowerCase());
+  const addButton = currentUser && !hasOwnNote
+    ? `<button type="button" class="instruction-note-add" data-step="${step}">+ note</button>`
+    : '';
+
+  return `<span class="instruction-notes" data-step="${step}">${bubbles}${addButton}</span>`;
+}
+
+let stepIndex = 0;
+const instructionsHTML = recipe.renderedHTML.replace(/<\/li>/g, () => {
+  const slot = renderNoteSlot(stepIndex);
+  stepIndex += 1;
+  return `${slot}</li>`;
+});
 ---
 
 <BaseLayout title={`${d.title} — Lunchbox`}>
@@ -63,7 +109,7 @@ const authorClass = d.added_by?.toLowerCase() === 'mathilde' ? 'author-mathilde'
     <aside class="recipe-ingredients">
       <ServingsAdjuster client:load ingredients={d.ingredients} baseServings={d.servings} />
     </aside>
-    <div class="recipe-instructions" set:html={recipe.renderedHTML} />
+    <div class="recipe-instructions" set:html={instructionsHTML} />
   </div>
 
   {d.source && (
@@ -93,6 +139,83 @@ const authorClass = d.added_by?.toLowerCase() === 'mathilde' ? 'author-mathilde'
         const res = await fetch(`/api/recipes/${recipeId}`, { method: 'DELETE' });
         if (res.ok) window.location.href = '/browse';
         else alert('Failed to delete recipe');
+      });
+    </script>
+
+    <div class="confirm-overlay" id="note-overlay" style="display:none;">
+      <div class="confirm-dialog">
+        <p id="note-dialog-title">Add note</p>
+        <textarea id="note-dialog-text" rows="4" placeholder="Something worth flagging for this step..."></textarea>
+        <div class="confirm-actions">
+          <button class="manage-btn" id="note-save">Save</button>
+          <button class="manage-btn" id="note-cancel">Cancel</button>
+        </div>
+      </div>
+    </div>
+    <script is:inline define:vars={{ recipeId: id }}>
+      const noteOverlay = document.getElementById('note-overlay');
+      const noteTitle = document.getElementById('note-dialog-title');
+      const noteText = document.getElementById('note-dialog-text');
+      let noteEditingId = null;
+      let noteStep = null;
+
+      function openNoteDialog({ step, noteId, initialText }) {
+        noteStep = step;
+        noteEditingId = noteId ?? null;
+        noteTitle.textContent = noteId ? 'Edit note' : 'Add note';
+        noteText.value = initialText ?? '';
+        noteOverlay.style.display = 'flex';
+        noteText.focus();
+      }
+
+      document.getElementById('note-cancel')?.addEventListener('click', () => {
+        noteOverlay.style.display = 'none';
+      });
+
+      document.getElementById('note-save')?.addEventListener('click', async () => {
+        const text = noteText.value.trim();
+        if (!text) return;
+        const res = noteEditingId
+          ? await fetch(`/api/recipes/${recipeId}/notes`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ id: noteEditingId, text }),
+            })
+          : await fetch(`/api/recipes/${recipeId}/notes`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ step: noteStep, text }),
+            });
+        if (res.ok) {
+          window.location.reload();
+        } else {
+          alert('Failed to save note');
+        }
+      });
+
+      document.querySelector('.recipe-instructions')?.addEventListener('click', (e) => {
+        const addBtn = e.target.closest('.instruction-note-add');
+        if (addBtn) {
+          openNoteDialog({ step: Number(addBtn.dataset.step) });
+          return;
+        }
+        const editBtn = e.target.closest('.instruction-note-edit');
+        if (editBtn) {
+          openNoteDialog({ noteId: editBtn.dataset.noteId, initialText: editBtn.dataset.text });
+          return;
+        }
+        const deleteBtn = e.target.closest('.instruction-note-delete');
+        if (deleteBtn) {
+          if (!confirm('Delete this note?')) return;
+          fetch(`/api/recipes/${recipeId}/notes`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: deleteBtn.dataset.noteId }),
+          }).then((res) => {
+            if (res.ok) window.location.reload();
+            else alert('Failed to delete note');
+          });
+        }
       });
     </script>
   )}

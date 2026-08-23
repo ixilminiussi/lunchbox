@@ -37,6 +37,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
     image: body.image ?? existing.data.image,
     ratings: body.ratings ?? existing.data.ratings,
     ingredients: Array.isArray(body.ingredients) ? body.ingredients : existing.data.ingredients,
+    notes: Array.isArray(body.notes) ? body.notes : existing.data.notes,
   };
 
   const instructions = body.instructions ?? existing.body;

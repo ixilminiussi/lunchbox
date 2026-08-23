@@ -27,6 +27,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     image: body.image || undefined,
     ratings: body.ratings || {},
     ingredients: Array.isArray(body.ingredients) ? body.ingredients : [],
+    notes: [],
   };
 
   const instructions = body.instructions || '';

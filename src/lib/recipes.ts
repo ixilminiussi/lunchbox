@@ -1,6 +1,13 @@
 import matter from 'gray-matter';
 import { marked } from 'marked';
 
+export interface InstructionNote {
+  id: string;
+  step: number;
+  user: string;
+  text: string;
+}
+
 export interface RecipeData {
   title: string;
   servings: number;
@@ -16,6 +23,7 @@ export interface RecipeData {
   image?: string;
   ratings: Record<string, number>;
   ingredients: string[];
+  notes: InstructionNote[];
 }
 
 export interface RecipeEntry {
@@ -46,6 +54,7 @@ export function parseRecipeContent(raw: string, id: string): RecipeEntry {
       image: data.image,
       ratings: data.ratings ?? {},
       ingredients: Array.isArray(data.ingredients) ? data.ingredients : [],
+      notes: Array.isArray(data.notes) ? data.notes : [],
     },
     body: content,
     renderedHTML,
@@ -105,6 +114,15 @@ export function renderFrontmatter(data: RecipeData): string {
   for (const ing of data.ingredients) {
     lines.push(`  - ${JSON.stringify(ing)}`);
   }
+  if (data.notes && data.notes.length > 0) {
+    lines.push('notes:');
+    for (const note of data.notes) {
+      lines.push(`  - id: ${JSON.stringify(note.id)}`);
+      lines.push(`    step: ${note.step}`);
+      lines.push(`    user: ${JSON.stringify(note.user)}`);
+      lines.push(`    text: ${JSON.stringify(note.text)}`);
+    }
+  }
   lines.push('---');
   return lines.join('\n');
 }
@@ -139,5 +157,56 @@ export async function updateRating(
   if (!recipe) throw new Error(`Recipe not found: ${id}`);
 
   recipe.data.ratings[user] = rating;
+  await saveRecipe(kv, id, recipe.data, recipe.body);
+}
+
+export async function addNote(
+  kv: KVNamespace,
+  id: string,
+  user: string,
+  step: number,
+  text: string,
+): Promise<InstructionNote> {
+  const recipe = await getRecipeById(kv, id);
+  if (!recipe) throw new Error(`Recipe not found: ${id}`);
+
+  const note: InstructionNote = { id: crypto.randomUUID(), step, user, text };
+  recipe.data.notes = [...recipe.data.notes.filter((n) => !(n.step === step && n.user === user)), note];
+  await saveRecipe(kv, id, recipe.data, recipe.body);
+  return note;
+}
+
+export async function updateNote(
+  kv: KVNamespace,
+  id: string,
+  noteId: string,
+  user: string,
+  text: string,
+): Promise<void> {
+  const recipe = await getRecipeById(kv, id);
+  if (!recipe) throw new Error(`Recipe not found: ${id}`);
+
+  const note = recipe.data.notes.find((n) => n.id === noteId);
+  if (!note) throw new Error(`Note not found: ${noteId}`);
+  if (note.user !== user) throw new Error('Not the note owner');
+
+  note.text = text;
+  await saveRecipe(kv, id, recipe.data, recipe.body);
+}
+
+export async function deleteNote(
+  kv: KVNamespace,
+  id: string,
+  noteId: string,
+  user: string,
+): Promise<void> {
+  const recipe = await getRecipeById(kv, id);
+  if (!recipe) throw new Error(`Recipe not found: ${id}`);
+
+  const note = recipe.data.notes.find((n) => n.id === noteId);
+  if (!note) throw new Error(`Note not found: ${noteId}`);
+  if (note.user !== user) throw new Error('Not the note owner');
+
+  recipe.data.notes = recipe.data.notes.filter((n) => n.id !== noteId);
   await saveRecipe(kv, id, recipe.data, recipe.body);
 }

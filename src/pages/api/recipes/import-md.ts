@@ -64,6 +64,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     image: data.image,
     ratings: data.ratings ?? {},
     ingredients: Array.isArray(data.ingredients) ? data.ingredients : [],
+    notes: Array.isArray(data.notes) ? data.notes : [],
   };
 
   const id = await saveRecipe(kv, null, recipeData, content);
