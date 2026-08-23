@@ -35,12 +35,16 @@ function avatarSrc(user: string): string {
   return user.toLowerCase() === 'mathilde' ? '/images/mathilde-mii.png' : '/images/ixil-mii.png';
 }
 
+function authorBgClass(user: string): string {
+  return user.toLowerCase() === 'mathilde' ? 'author-mathilde-bg' : 'author-ixil-bg';
+}
+
 function renderNoteSlot(step: number): string {
   const stepNotes = d.notes.filter((n) => n.step === step);
   const bubbles = stepNotes
     .map((note) => {
       const isOwner = currentUser?.toLowerCase() === note.user.toLowerCase();
-      return `<span class="instruction-note" data-note-id="${note.id}">
+      return `<span class="instruction-note ${authorBgClass(note.user)}" data-note-id="${note.id}">
         <img class="instruction-note-avatar" src="${avatarSrc(note.user)}" alt="${escapeHtml(note.user)}" />
         <span class="instruction-note-bubble">
           <span class="instruction-note-text">${escapeHtml(note.text)}</span>
@@ -54,9 +58,8 @@ function renderNoteSlot(step: number): string {
     .join('');
 
   const hasOwnNote = currentUser && stepNotes.some((n) => n.user.toLowerCase() === currentUser!.toLowerCase());
-  const addButtonClass = currentUser?.toLowerCase() === 'mathilde' ? 'author-mathilde-bg' : 'author-ixil-bg';
   const addButton = currentUser && !hasOwnNote
-    ? `<button type="button" class="instruction-note-add ${addButtonClass}" data-step="${step}" aria-label="Add note">+</button>`
+    ? `<button type="button" class="instruction-note-add ${authorBgClass(currentUser)}" data-step="${step}" aria-label="Add note">+</button>`
     : '';
 
   return `<span class="instruction-notes" data-step="${step}">${bubbles}${addButton}</span>`;

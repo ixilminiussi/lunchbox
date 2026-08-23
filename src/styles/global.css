@@ -384,6 +384,9 @@ main.container {
   .recipe-ingredients {
     position: static;
   }
+  .recipe-instructions li {
+    padding-right: 0;
+  }
   .instruction-notes {
     position: static;
     display: inline-flex;
@@ -441,6 +444,7 @@ main.container {
   position: relative;
   margin-bottom: 0.75rem;
   line-height: 1.7;
+  padding-right: 2.6em;
 }
 .recipe-instructions p {
   margin-bottom: 0.75rem;
@@ -1154,8 +1158,7 @@ main.container {
 .instruction-notes {
   position: absolute;
   top: 0.1em;
-  left: 100%;
-  margin-left: 0.6em;
+  right: 0;
   display: flex;
   align-items: center;
   gap: 0.35em;
@@ -1202,21 +1205,27 @@ main.container {
   border-radius: 50%;
   object-fit: cover;
   cursor: default;
-  border: 1px solid var(--color-border);
+  border: 2px solid var(--color-border);
+}
+.instruction-note.author-ixil-bg .instruction-note-avatar {
+  border-color: var(--color-author-ixil);
+}
+.instruction-note.author-mathilde-bg .instruction-note-avatar {
+  border-color: var(--color-author-mathilde);
 }
 .instruction-note-bubble {
   position: absolute;
   bottom: calc(100% + 0.4em);
-  left: 50%;
-  transform: translateX(-50%) scale(0.85);
-  transform-origin: bottom center;
+  right: 0;
+  transform: scale(0.85);
+  transform-origin: bottom right;
   background: Canvas;
   color: var(--color-text);
-  border: 1px solid var(--color-border);
+  border: 2px solid var(--color-border);
   box-shadow: 0 0.2em 0.6em rgba(0, 0, 0, 0.15);
   padding: 0.5em 0.7em;
   width: max-content;
-  max-width: 18em;
+  max-width: min(18em, 60vw);
   font-size: 0.8em;
   line-height: 1.4;
   opacity: 0;
@@ -1224,10 +1233,16 @@ main.container {
   transition: opacity 0.15s ease-out, transform 0.15s ease-out;
   z-index: 50;
 }
+.instruction-note.author-ixil-bg .instruction-note-bubble {
+  border-color: var(--color-author-ixil);
+}
+.instruction-note.author-mathilde-bg .instruction-note-bubble {
+  border-color: var(--color-author-mathilde);
+}
 .instruction-note:hover .instruction-note-bubble,
 .instruction-note:focus-within .instruction-note-bubble {
   opacity: 1;
-  transform: translateX(-50%) scale(1);
+  transform: scale(1);
   pointer-events: auto;
 }
 .instruction-note-actions {
