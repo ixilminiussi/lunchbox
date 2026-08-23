@@ -7,7 +7,7 @@ const TAG_CATEGORIES = [
   { name: 'Atmosphere / Occasion', tags: ['cozy', 'festive', 'fine-dining', 'street-food', 'luxurious'] },
   { name: 'Flavor / Intensity', tags: ['light', 'bold', 'hearty', 'fresh', 'spicy'] },
   { name: 'Temperature', tags: ['warm', 'cold'] },
-  { name: 'Technique / Format', tags: ['barbecue', 'baked', 'fried', 'air-fried', 'slow-cooked', 'raw', 'one-pot', 'shareable', 'portable', 'plated', 'dip', 'soup'] },
+  { name: 'Technique / Format', tags: ['barbecue', 'baked', 'fried', 'air-fried', 'slow-cooked', 'raw', 'one-pot', 'shareable', 'portable', 'plated', 'dip', 'soup', 'salad'] },
   { name: 'Conservation / Shelf-life', tags: ['freezer-friendly', 'make-ahead', 'best-fresh'] },
 ];
 
@@ -247,7 +247,7 @@ export default function RecipeForm({ mode, recipeId, initial }: Props) {
         <legend>Ingredients</legend>
         <textarea
           rows={10}
-          placeholder="One ingredient per line"
+          placeholder="One ingredient per line. Start a line with # for a section title, e.g. # Mussels"
           value={ingredients}
           onInput={(e) => setIngredients((e.target as HTMLTextAreaElement).value)}
         />

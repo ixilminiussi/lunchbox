@@ -9,7 +9,9 @@ interface Props {
 export default function ServingsAdjuster({ ingredients, baseServings }: Props) {
   const [servings, setServings] = useState(baseServings);
 
-  const parsed = ingredients.map(parseIngredient);
+  const parsed = ingredients.map((line) =>
+    line.trim().startsWith('#') ? null : parseIngredient(line)
+  );
 
   const decrease = () => setServings((s) => Math.max(1, s - 1));
   const increase = () => setServings((s) => s + 1);
@@ -23,13 +25,23 @@ export default function ServingsAdjuster({ ingredients, baseServings }: Props) {
         <button class="servings-btn" onClick={increase} aria-label="Increase servings">+</button>
       </div>
       <ul>
-        {ingredients.map((original, i) => (
-          <li key={i}>
-            {servings === baseServings
-              ? original
-              : scaleIngredient(parsed[i], baseServings, servings)}
-          </li>
-        ))}
+        {ingredients.map((original, i) => {
+          const trimmed = original.trim();
+          if (trimmed.startsWith('#')) {
+            return (
+              <li key={i} class="ingredient-section">
+                {trimmed.replace(/^#+\s*/, '')}
+              </li>
+            );
+          }
+          return (
+            <li key={i}>
+              {servings === baseServings
+                ? original
+                : scaleIngredient(parsed[i]!, baseServings, servings)}
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

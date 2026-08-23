@@ -191,6 +191,7 @@ main.container {
   width: 100%;
   aspect-ratio: 16 / 10;
   object-fit: cover;
+  object-position: center;
   background: var(--color-border);
 }
 .recipe-card-body {
@@ -367,6 +368,7 @@ main.container {
   width: 100%;
   max-height: 400px;
   object-fit: cover;
+  object-position: center;
   margin-bottom: 1.5rem;
 }
 .recipe-body {
@@ -584,6 +586,18 @@ main.container {
 }
 .servings-adjuster li:last-child {
   border-bottom: none;
+}
+.servings-adjuster li.ingredient-section {
+  border-bottom: none;
+  padding: 0.6rem 0 0.2rem;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted, var(--color-text));
+}
+.servings-adjuster li.ingredient-section:first-child {
+  padding-top: 0;
 }
 .servings-control {
   display: flex;
