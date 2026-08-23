@@ -384,6 +384,16 @@ main.container {
   .recipe-ingredients {
     position: static;
   }
+  .instruction-notes {
+    position: static;
+    display: inline-flex;
+    margin-left: 0.5em;
+    vertical-align: middle;
+  }
+  .instruction-note-add {
+    opacity: 1;
+    visibility: visible;
+  }
 }
 .recipe-ingredients {
   border: 1px solid var(--color-border);
@@ -428,6 +438,7 @@ main.container {
   padding-left: 1.25rem;
 }
 .recipe-instructions li {
+  position: relative;
   margin-bottom: 0.75rem;
   line-height: 1.7;
 }
@@ -1141,20 +1152,35 @@ main.container {
 
 /* Instruction notes */
 .instruction-notes {
-  display: inline-flex;
+  position: absolute;
+  top: 0.1em;
+  left: 100%;
+  margin-left: 0.6em;
+  display: flex;
   align-items: center;
   gap: 0.35em;
-  vertical-align: middle;
-  margin-left: 0.5em;
+  white-space: nowrap;
 }
 .instruction-note-add {
-  font-size: 0.75em;
-  padding: 0.15em 0.6em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6em;
+  height: 1.6em;
+  line-height: 1;
+  font-size: 0.9em;
   border: 1px dashed var(--color-border);
   background: transparent;
   color: var(--color-text-light);
   cursor: pointer;
-  border-radius: 999em;
+  border-radius: 0.3em;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.1s ease-out;
+}
+.recipe-instructions li:hover .instruction-note-add {
+  opacity: 1;
+  visibility: visible;
 }
 .instruction-note-add:hover {
   border-color: var(--color-accent);

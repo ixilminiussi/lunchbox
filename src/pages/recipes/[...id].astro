@@ -55,7 +55,7 @@ function renderNoteSlot(step: number): string {
 
   const hasOwnNote = currentUser && stepNotes.some((n) => n.user.toLowerCase() === currentUser!.toLowerCase());
   const addButton = currentUser && !hasOwnNote
-    ? `<button type="button" class="instruction-note-add" data-step="${step}">+ note</button>`
+    ? `<button type="button" class="instruction-note-add" data-step="${step}" aria-label="Add note">+</button>`
     : '';
 
   return `<span class="instruction-notes" data-step="${step}">${bubbles}${addButton}</span>`;
